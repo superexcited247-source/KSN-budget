@@ -1,0 +1,11 @@
+services:
+  gangsinna-budget:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      APP_PASSWORD: "${APP_PASSWORD:-9899}"
+      DATA_DIR: /app/data
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
