@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>강신나 자금관리</title>
+<!-- build: v8 calendar/home fix -->
 <style>
 :root{
   --bg:#f6f7f9; --panel:#fff; --text:#17191d; --muted:#6b7280; --line:#e5e7eb;
@@ -76,7 +77,7 @@ table{width:100%;border-collapse:collapse}th,td{padding:11px 9px;border-bottom:1
 .cal-head{padding:8px;text-align:center;font-size:12px;font-weight:800;color:var(--muted);background:#fafafa;border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
 .day{min-height:126px;padding:7px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);background:#fff}.day.muted{background:#fbfbfc;color:#a0a5ad}.day-num{font-size:12px;font-weight:900;margin-bottom:5px}.today .day-num{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--dark);color:#fff}
 .cal-event{display:block;width:100%;border-radius:7px;padding:5px 6px;margin:4px 0;font-size:11px;font-weight:900;line-height:1.25;border:1px solid transparent;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.cal-event.plan{border-style:dashed}.team-hustle{background:var(--hustle-soft);border-color:var(--hustle)}.team-eleven{background:var(--eleven-soft);border-color:var(--eleven)}.team-loami{background:var(--loami-soft);border-color:var(--loami)}.team-central{background:var(--central-soft);border-color:var(--central)}
-.day{cursor:pointer;transition:box-shadow .12s ease,background .12s ease}.day:hover{box-shadow:inset 0 0 0 2px #dbe3ef}.day.selected-day{box-shadow:inset 0 0 0 2px #334155;background:#f8fafc}.cal-note{margin-top:4px;padding:4px 5px;border-radius:6px;background:#fff7d6;border:1px solid #f0cf66;color:#655000;font-size:10px;font-weight:800;line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.balance-forecast{margin-top:14px;border:1px solid var(--line);border-radius:14px;padding:14px;background:#fafbfc}.forecast-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:10px}.forecast-head h3{font-size:16px;margin:0}.forecast-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px}.forecast-card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px}.forecast-card .name{font-size:11px;color:var(--muted);font-weight:800}.forecast-card .amount{font-size:17px;font-weight:950;margin-top:5px;word-break:break-all}.forecast-card.total{border-color:#94a3b8;background:#f8fafc}.calendar-click-hint{font-size:12px;color:var(--muted)}@media(max-width:850px){.forecast-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.forecast-card.total{grid-column:1/-1}}
+.day{cursor:pointer;transition:box-shadow .12s ease,background .12s ease;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:manipulation}.day:hover{box-shadow:inset 0 0 0 2px #dbe3ef}.day.selected-day{box-shadow:inset 0 0 0 2px #334155;background:#f8fafc}.cal-note{margin-top:4px;padding:4px 5px;border-radius:6px;background:#fff7d6;border:1px solid #f0cf66;color:#655000;font-size:10px;font-weight:800;line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.balance-forecast{margin-top:14px;border:1px solid var(--line);border-radius:14px;padding:14px;background:#fafbfc}.forecast-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:10px}.forecast-head h3{font-size:16px;margin:0}.forecast-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px}.forecast-card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px}.forecast-card .name{font-size:11px;color:var(--muted);font-weight:800}.forecast-card .amount{font-size:17px;font-weight:950;margin-top:5px;word-break:break-all}.forecast-card.total{border-color:#94a3b8;background:#f8fafc}.calendar-click-hint{font-size:12px;color:var(--muted)}@media(max-width:850px){.forecast-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.forecast-card.total{grid-column:1/-1}}
 .legend{display:flex;gap:8px;flex-wrap:wrap}.legend span{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:#555}.legend i{width:11px;height:11px;border-radius:3px;display:inline-block}
 .debt-card{border:1px solid var(--line);border-radius:14px;padding:14px;background:#fff}.debt-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:11px}
 .calc-result{background:#fafafa;border:1px solid var(--line);border-radius:13px;padding:14px;margin-top:12px}
@@ -128,7 +129,7 @@ table{width:100%;border-collapse:collapse}th,td{padding:11px 9px;border-bottom:1
       <div class="brand"><div class="brand-dot">자금</div><span id="brandTitle"></span></div>
       <div class="week-switcher" id="weekSwitcher">
         <button type="button" onclick="moveSelectedWeek(-1)" aria-label="이전 주">‹</button>
-        <div class="week-info"><strong id="selectedWeekLabel"></strong><small id="selectedWeekRange"></small></div>
+        <div class="week-info"><strong id="selectedWeekLabel"></strong><small id="selectedWeekRange"></small><small style="display:block;color:#8a8f9c;margin-top:2px">일요일 시작 · 토요일 종료</small></div>
         <button type="button" onclick="moveSelectedWeek(1)" aria-label="다음 주">›</button>
         <button type="button" class="week-now" onclick="goCurrentWeek()">이번 주</button>
       </div>
@@ -171,6 +172,7 @@ function seedState(){
    budgetRequests:[],
    transfers:[],
    calendarNotes:{},
+   weekStandard:"sunday",
    sales:[],
    expenses:[],
    plans:[],
@@ -193,13 +195,16 @@ let selectedWeekStart=iso(startOfWeek(todayISO()));
 const nowForCalendar=new Date();
 let calendarCursor=new Date(nowForCalendar.getFullYear(),nowForCalendar.getMonth(),1);
 let selectedCalendarDate=todayISO();
+let calendarClickTimer=null;
+let calendarSuppressClickUntil=0;
 let selectedPlanId=null;
 let saveTimer=null;
 let saveInFlight=false;
 let saveQueued=false;
 
 function normalizeState(s){
- const x=s&&typeof s==="object"?s:seedState();
+ let x=s&&typeof s==="object"?s:seedState();
+ if(x.weekStandard!=="sunday-v8")x=migrateWeeksToSunday(x);
  x.accounts=x.accounts||{"강신나":0,"허슬":0,"엘리븐":0,"로아미":0};
  x.budgets=x.budgets||{"허슬":{approved:0,unused:0,extra:0},"엘리븐":{approved:0,unused:0,extra:0},"로아미":{approved:0,unused:0,extra:0}};
  x.weeklyBudgets=x.weeklyBudgets&&typeof x.weeklyBudgets==="object"?x.weeklyBudgets:{};
@@ -224,7 +229,10 @@ async function loadRemoteState(){
    if(r.status===401)return false;
    if(!r.ok)throw new Error('state load failed');
    const data=await r.json();
-   state=normalizeState(data.state);stateVersion=Number(data.version)||0;return true;
+   const needsWeekMigration=data.state?.weekStandard!=="sunday-v8";
+   state=normalizeState(data.state);stateVersion=Number(data.version)||0;
+   if(needsWeekMigration)saveState();
+   return true;
  }catch(e){console.error(e);return false;}
 }
 function saveState(){
@@ -315,18 +323,48 @@ function totalCash(){return Object.values(state.accounts).reduce((a,b)=>a+b,0)}
 function totalDebt(){return state.debts.reduce((a,b)=>a+b.principal,0)}
 function parseMoney(v){return Number(String(v||"").replace(/[^0-9-]/g,""))||0}
 function startOfWeek(dateStr){
- const d=new Date(dateStr+"T00:00:00");const day=d.getDay();const diff=(day===0?-6:1-day);d.setDate(d.getDate()+diff);return d;
+ const d=new Date(dateStr+"T00:00:00");const day=d.getDay();d.setDate(d.getDate()-day);return d;
 }
 function endOfWeek(dateStr){const d=startOfWeek(dateStr);d.setDate(d.getDate()+6);return d}
-function iso(d){return d.toISOString().slice(0,10)}
+function iso(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`}
 function addDaysISO(dateStr,days){const d=new Date(dateStr+"T00:00:00");d.setDate(d.getDate()+days);return iso(d)}
 function weekStartISO(dateStr){return iso(startOfWeek(dateStr))}
 function weekEndISO(weekStart){return addDaysISO(weekStart,6)}
+function normalizeSundayWeekKey(key,wasMarkedSunday=false){
+ if(!key)return key;
+ const d=new Date(key+"T00:00:00"),day=d.getDay();
+ // v7 used UTC toISOString() on local midnight, so in Korea intended Sunday keys were saved as Saturday.
+ if(wasMarkedSunday&&day===6)return addDaysISO(key,1);
+ return weekStartISO(key);
+}
+function migrateWeeksToSunday(data){
+ const x=data&&typeof data==="object"?data:{};
+ const wasMarkedSunday=x.weekStandard==="sunday";
+ x.weeklyBudgets=x.weeklyBudgets&&typeof x.weeklyBudgets==="object"?x.weeklyBudgets:{};
+ const migrated={};
+ Object.entries(x.weeklyBudgets).forEach(([oldKey,teams])=>{
+   const newKey=normalizeSundayWeekKey(oldKey,wasMarkedSunday);
+   migrated[newKey]=migrated[newKey]||{};
+   Object.entries(teams||{}).forEach(([team,b])=>{
+     if(!migrated[newKey][team])migrated[newKey][team]={approved:0,unused:0,extra:0};
+     const target=migrated[newKey][team];
+     target.approved+=Number(b?.approved)||0;
+     target.unused+=Number(b?.unused)||0;
+     target.extra+=Number(b?.extra)||0;
+   });
+ });
+ x.weeklyBudgets=migrated;
+ (x.budgetRequests||[]).forEach(r=>{if(r.weekStart)r.weekStart=normalizeSundayWeekKey(r.weekStart,wasMarkedSunday)});
+ (x.expenses||[]).forEach(e=>{if(e.date)e.budgetWeek=weekStartISO(e.date)});
+ (x.transfers||[]).forEach(tr=>{if(tr.weekStart)tr.weekStart=normalizeSundayWeekKey(tr.weekStart,wasMarkedSunday)});
+ x.weekStandard="sunday-v8";
+ return x;
+}
 function getWeekBudget(team,weekStart=selectedWeekStart){state.weeklyBudgets=state.weeklyBudgets||{};if(!state.weeklyBudgets[weekStart])state.weeklyBudgets[weekStart]={};if(!state.weeklyBudgets[weekStart][team])state.weeklyBudgets[weekStart][team]={approved:0,unused:0,extra:0};return state.weeklyBudgets[weekStart][team]}
 function syncBudgetMirror(){["허슬","엘리븐","로아미"].forEach(t=>{state.budgets[t]=getWeekBudget(t,selectedWeekStart)})}
 function previousWeekStart(weekStart=selectedWeekStart){return addDaysISO(weekStart,-7)}
 function weekCarryover(team,weekStart=selectedWeekStart){return Number(getWeekBudget(team,previousWeekStart(weekStart)).unused)||0}
-function weekLabelInfo(weekStart=selectedWeekStart){const d=new Date(weekStart+"T00:00:00"),y=d.getFullYear(),m=d.getMonth(),day=d.getDate();const first=new Date(y,m,1),offset=(first.getDay()+6)%7,nth=Math.floor((day+offset-1)/7)+1,end=new Date(weekEndISO(weekStart)+"T00:00:00");return {label:`${y}년 ${m+1}월 ${nth}째주`,range:`${m+1}/${day} ~ ${end.getMonth()+1}/${end.getDate()}`}}
+function weekLabelInfo(weekStart=selectedWeekStart){const d=new Date(weekStart+"T00:00:00"),y=d.getFullYear(),m=d.getMonth(),day=d.getDate();const first=new Date(y,m,1),offset=first.getDay(),nth=Math.floor((day+offset-1)/7)+1,end=new Date(weekEndISO(weekStart)+"T00:00:00");return {label:`${y}년 ${m+1}월 ${nth}째주`,range:`${m+1}/${day} ~ ${end.getMonth()+1}/${end.getDate()}`}}
 function updateWeekSwitcher(){const info=weekLabelInfo(),l=document.getElementById("selectedWeekLabel"),r=document.getElementById("selectedWeekRange");if(l)l.textContent=info.label;if(r)r.textContent=info.range}
 window.moveSelectedWeek=function(n){selectedWeekStart=addDaysISO(selectedWeekStart,n*7);sessionStorage.setItem("selectedWeekStart",selectedWeekStart);syncBudgetMirror();renderApp()}
 window.goCurrentWeek=function(){selectedWeekStart=weekStartISO(todayISO());sessionStorage.setItem("selectedWeekStart",selectedWeekStart);syncBudgetMirror();renderApp()}
@@ -734,8 +772,15 @@ window.approveBudgetRequest=function(id){
 window.rejectBudgetRequest=function(id){const r=state.budgetRequests.find(x=>x.id===id);if(!r||r.status!=="요청")return;r.status="거절";r.rejectedAt=new Date().toISOString();notify(r.team,"예산 요청 거절",`${weekLabelInfo(r.weekStart).label} 예산 요청이 거절되었습니다.`);saveState();showToast("예산 요청을 거절했습니다.",`${r.team} · ${weekLabelInfo(r.weekStart).label}`);renderApp()}
 
 
-function safeText(v){return String(v??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;")}
-function calendarMemo(date){return String((state.calendarNotes||{})[date]||"")}
+function safeText(v){return String(v??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\"/g,"&quot;").replace(/'/g,"&#39;")}
+function calendarNoteData(date){
+ const v=(state.calendarNotes||{})[date];
+ if(typeof v==="string")return {type:"메모",text:v};
+ if(v&&typeof v==="object")return {type:v.type==="일정"?"일정":"메모",text:String(v.text||v.memo||"")};
+ return {type:"메모",text:""};
+}
+function calendarMemo(date){return calendarNoteData(date).text}
+function calendarNoteType(date){return calendarNoteData(date).type}
 function expectedBalancesAt(date){
  const teams=["강신나","허슬","엘리븐","로아미"],today=todayISO(),b={};
  teams.forEach(t=>b[t]=Number(state.accounts[t])||0);
@@ -753,21 +798,63 @@ function expectedBalancesAt(date){
  b["통합"]=teams.reduce((sum,t)=>sum+b[t],0);
  return b;
 }
+window.selectCalendarDay=function(date){
+ if(Date.now()<calendarSuppressClickUntil)return;
+ selectedCalendarDate=date;
+ renderApp();
+}
+window.calendarDayClick=function(date){
+ if(Date.now()<calendarSuppressClickUntil)return;
+ clearTimeout(calendarClickTimer);
+ calendarClickTimer=setTimeout(()=>{calendarClickTimer=null;selectCalendarDay(date)},220);
+}
+window.calendarDayDoubleClick=function(date){
+ clearTimeout(calendarClickTimer);calendarClickTimer=null;
+ selectedCalendarDate=date;
+ openCalendarDay(date);
+}
 window.openCalendarDay=function(date){
  selectedCalendarDate=date;
- const memo=calendarMemo(date),events=getCalendarEventsForDate(date);
+ const note=calendarNoteData(date),events=getCalendarEventsForDate(date);
  const eventHtml=events.length?events.map(e=>`<div class="row"><span>${safeText(e.name||"")} · ${safeText(e.team||"")}</span><strong class="${e.type==="expense"?"money-expense":"money-income"}">${e.type==="expense"?"-":"+"}${won(e.amount||0)}</strong></div>`).join(""):`<div class="empty">등록된 매출·지출·예정 내역이 없습니다.</div>`;
- document.getElementById("modalRoot").innerHTML=`<div class="modal-back"><div class="modal"><h3>${dateLabel(date)} 일정·메모</h3><p>이 메모는 자금 잔고에는 영향을 주지 않습니다.</p><div class="field"><label>일정 / 메모</label><textarea id="calendarMemoInput" rows="5" placeholder="예: 거래처 미팅, 촬영 일정, 입금 확인 필요">${safeText(memo)}</textarea></div><div style="margin-top:14px"><div class="hint" style="margin-bottom:6px">이날 등록된 자금 일정</div>${eventHtml}</div><div class="form-actions">${memo?`<button class="ghost" onclick="deleteCalendarMemo('${date}')">메모 삭제</button>`:""}<button class="ghost" onclick="closeModal()">취소</button><button class="primary" onclick="saveCalendarMemo('${date}')">메모 저장</button></div></div></div>`;
+ document.getElementById("modalRoot").innerHTML=`<div class="modal-back"><div class="modal"><h3>${dateLabel(date)} 메모·일정 등록</h3><p>단순 메모나 일정을 남길 수 있습니다. 이 내용은 계좌잔고 계산에는 영향을 주지 않습니다.</p><div class="form-grid"><div class="field"><label>구분</label><select id="calendarNoteType"><option value="메모" ${note.type==="메모"?"selected":""}>메모</option><option value="일정" ${note.type==="일정"?"selected":""}>일정</option></select></div><div class="field"><label>날짜</label><input value="${date}" disabled></div></div><div class="field" style="margin-top:10px"><label>내용</label><textarea id="calendarMemoInput" rows="5" placeholder="예: 거래처 미팅, 촬영 일정, 입금 확인 필요">${safeText(note.text)}</textarea></div><div style="margin-top:14px"><div class="hint" style="margin-bottom:6px">이날 등록된 자금 일정</div>${eventHtml}</div><div class="form-actions">${note.text?`<button class="ghost" onclick="deleteCalendarMemo('${date}')">삭제</button>`:""}<button class="ghost" onclick="closeModal()">취소</button><button class="primary" onclick="saveCalendarMemo('${date}')">저장</button></div></div></div>`;
  renderApp();
 }
 window.saveCalendarMemo=function(date){
  const text=(document.getElementById("calendarMemoInput")?.value||"").trim();
+ const type=document.getElementById("calendarNoteType")?.value==="일정"?"일정":"메모";
  state.calendarNotes=state.calendarNotes||{};
- if(text)state.calendarNotes[date]=text;else delete state.calendarNotes[date];
- saveState();closeModal();showToast(text?"일정·메모가 저장되었습니다.":"메모가 비워졌습니다.",dateLabel(date));renderApp();
+ if(text)state.calendarNotes[date]={type,text};else delete state.calendarNotes[date];
+ saveState();closeModal();showToast(text?`${type}가 저장되었습니다.`:"내용이 비워졌습니다.",dateLabel(date));renderApp();
 }
 window.deleteCalendarMemo=function(date){
- state.calendarNotes=state.calendarNotes||{};delete state.calendarNotes[date];saveState();closeModal();showToast("일정·메모가 삭제되었습니다.",dateLabel(date));renderApp();
+ state.calendarNotes=state.calendarNotes||{};delete state.calendarNotes[date];saveState();closeModal();showToast("메모·일정이 삭제되었습니다.",dateLabel(date));renderApp();
+}
+function bindCalendarLongPress(){
+ document.querySelectorAll(".day[data-calendar-date]").forEach(el=>{
+   let timer=null,startX=0,startY=0;
+   const cancel=()=>{if(timer){clearTimeout(timer);timer=null}};
+   el.addEventListener("touchstart",e=>{
+     if(e.touches.length!==1)return;
+     startX=e.touches[0].clientX;startY=e.touches[0].clientY;
+     cancel();
+     timer=setTimeout(()=>{
+       timer=null;
+       calendarSuppressClickUntil=Date.now()+1000;
+       const date=el.dataset.calendarDate;
+       selectedCalendarDate=date;
+       if(navigator.vibrate)try{navigator.vibrate(20)}catch(_){}
+       openCalendarDay(date);
+     },650);
+   },{passive:true});
+   el.addEventListener("touchmove",e=>{
+     if(!timer||e.touches.length!==1)return;
+     const dx=e.touches[0].clientX-startX,dy=e.touches[0].clientY-startY;
+     if(Math.hypot(dx,dy)>12)cancel();
+   },{passive:true});
+   el.addEventListener("touchend",cancel,{passive:true});
+   el.addEventListener("touchcancel",cancel,{passive:true});
+ });
 }
 function getCalendarEventsForDate(date){
  const actualSales=state.sales.filter(s=>(s.receivedAt||s.date)===date).map(s=>({date,team:s.team,type:"income",amount:s.amount,name:s.name,planned:false}));
@@ -784,7 +871,7 @@ function getCalendarEvents(y,m){
  return [...actualSales,...actualExp,...plans];
 }
 function renderCalendarSection(){
- const y=calendarCursor.getFullYear(),m=calendarCursor.getMonth(),first=new Date(y,m,1),startDay=(first.getDay()+6)%7,days=new Date(y,m+1,0).getDate(),prevDays=new Date(y,m,0).getDate();
+ const y=calendarCursor.getFullYear(),m=calendarCursor.getMonth(),first=new Date(y,m,1),startDay=first.getDay(),days=new Date(y,m+1,0).getDate(),prevDays=new Date(y,m,0).getDate();
  const events=getCalendarEvents(y,m);let cells=[];
  for(let i=0;i<42;i++){
    let day=i-startDay+1,curMonth=true,dateObj;
@@ -793,10 +880,10 @@ function renderCalendarSection(){
    else dateObj=new Date(y,m,day);
    const ds=`${dateObj.getFullYear()}-${String(dateObj.getMonth()+1).padStart(2,"0")}-${String(dateObj.getDate()).padStart(2,"0")}`;
    const ev=events.filter(e=>e.date===ds),memo=calendarMemo(ds),note=memo?safeText(memo.split(/\n/)[0]):"";
-   cells.push(`<div class="day ${!curMonth?"muted":""} ${ds===todayISO()?"today":""} ${ds===selectedCalendarDate?"selected-day":""}" onclick="openCalendarDay('${ds}')"><div class="day-num">${day}</div>${ev.map(e=>`<div class="cal-event ${TEAM_META[e.team].class} ${e.planned?"plan":""}" title="${safeText(e.name)}"><span style="color:${e.type==="expense"?"#c62828":"#176b42"}">${e.team} ${e.type==="expense"?"-":"+"}${shortMoney(e.amount)}</span>${e.isRecurring?" 고정":(e.planned?" 예정":"")}</div>`).join("")}${memo?`<div class="cal-note" title="${safeText(memo)}">메모 · ${note}</div>`:""}</div>`);
+   cells.push(`<div class="day ${!curMonth?"muted":""} ${ds===todayISO()?"today":""} ${ds===selectedCalendarDate?"selected-day":""}" data-calendar-date="${ds}" onclick="calendarDayClick('${ds}')" ondblclick="calendarDayDoubleClick('${ds}')" oncontextmenu="return false"><div class="day-num">${day}</div>${ev.map(e=>`<div class="cal-event ${(TEAM_META[e.team]||TEAM_META["강신나"]).class} ${e.planned?"plan":""}" title="${safeText(e.name)}"><span style="color:${e.type==="expense"?"#c62828":"#176b42"}">${e.team} ${e.type==="expense"?"-":"+"}${shortMoney(e.amount)}</span>${e.isRecurring?" 고정":(e.planned?" 예정":"")}</div>`).join("")}${memo?`<div class="cal-note" title="${safeText(memo)}">${calendarNoteType(ds)} · ${note}</div>`:""}</div>`);
  }
  const forecast=expectedBalancesAt(selectedCalendarDate),past=selectedCalendarDate<todayISO();
- return `<section class="section"><div class="section-title"><div><h2>통합 캘린더</h2><div class="legend" style="margin-top:8px"><span><i style="background:var(--hustle)"></i>허슬</span><span><i style="background:var(--eleven)"></i>엘리븐</span><span><i style="background:var(--loami)"></i>로아미</span></div></div><div class="calendar-tools"><button class="ghost" onclick="moveMonth(-1)">‹</button><div class="calendar-title">${y}년 ${m+1}월</div><button class="ghost" onclick="moveMonth(1)">›</button></div></div><div class="hint" style="margin-bottom:10px">날짜를 누르면 일정·메모를 남길 수 있습니다. 빨강 = 지출 · 초록 = 매출 · 점선 = 미리 신고 · 고정 = 자동생성</div><div class="calendar">${["월","화","수","목","금","토","일"].map(d=>`<div class="cal-head">${d}</div>`).join("")}${cells.join("")}</div><div class="balance-forecast"><div class="forecast-head"><div><h3>${dateLabel(selectedCalendarDate)} 예상 계좌잔고</h3><div class="calendar-click-hint">${past?"과거 날짜는 현재 잔액에서 실제 등록내역을 역산한 참고값입니다.":"현재 실제 잔액에 선택 날짜까지의 미리 신고 예정 매출·지출을 반영한 값입니다."}</div></div><button class="soft-btn" onclick="openCalendarDay('${selectedCalendarDate}')">이날 메모</button></div><div class="forecast-grid">${["강신나","허슬","엘리븐","로아미"].map(t=>`<div class="forecast-card"><div class="name" style="color:${TEAM_META[t].color}">${t}</div><div class="amount">${won(forecast[t])}</div></div>`).join("")}<div class="forecast-card total"><div class="name">통합 예상잔고</div><div class="amount">${won(forecast["통합"])}</div></div></div></div></section>`;
+ return `<section class="section"><div class="section-title"><div><h2>통합 캘린더</h2><div class="legend" style="margin-top:8px"><span><i style="background:var(--hustle)"></i>허슬</span><span><i style="background:var(--eleven)"></i>엘리븐</span><span><i style="background:var(--loami)"></i>로아미</span></div></div><div class="calendar-tools"><button class="ghost" onclick="moveMonth(-1)">‹</button><div class="calendar-title">${y}년 ${m+1}월</div><button class="ghost" onclick="moveMonth(1)">›</button></div></div><div class="hint" style="margin-bottom:10px">한 번 누르기 = 날짜 선택·예상잔고 확인 · PC 더블클릭 / 휴대폰 길게 누르기 = 메모·일정 등록 · 빨강 = 지출 · 초록 = 매출 · 점선 = 미리 신고 · 고정 = 자동생성</div><div class="calendar">${["일","월","화","수","목","금","토"].map(d=>`<div class="cal-head">${d}</div>`).join("")}${cells.join("")}</div><div class="balance-forecast"><div class="forecast-head"><div><h3>${dateLabel(selectedCalendarDate)} 예상 계좌잔고</h3><div class="calendar-click-hint">${past?"과거 날짜는 현재 잔액에서 실제 등록내역을 역산한 참고값입니다.":"현재 실제 잔액에 선택 날짜까지의 미리 신고 예정 매출·지출을 반영한 값입니다."}</div></div><button class="soft-btn" onclick="openCalendarDay('${selectedCalendarDate}')">메모·일정 등록</button></div><div class="forecast-grid">${["강신나","허슬","엘리븐","로아미"].map(t=>`<div class="forecast-card"><div class="name" style="color:${TEAM_META[t].color}">${t}</div><div class="amount">${won(forecast[t])}</div></div>`).join("")}<div class="forecast-card total"><div class="name">통합 예상잔고</div><div class="amount">${won(forecast["통합"])}</div></div></div></div></section>`;
 }
 function calendarPage(){
  return `<div class="page-head"><div><h1>통합 캘린더</h1><div class="sub">각 팀의 실제 매출·지출과 미리 신고된 예정 내역을 일정처럼 확인합니다.</div></div></div>${renderCalendarSection()}`;
@@ -1108,6 +1195,7 @@ function renderApp(){
  const bt=document.getElementById("budgetTarget");if(bt)bt.oninput=()=>{const v=parseMoney(bt.value),carry=weekCarryover(currentTeam),approved=getWeekBudget(currentTeam).approved,need=Math.max(0,v-carry-approved);document.getElementById("budgetCalc").innerHTML=`<div class="row"><span>전주 이월</span><strong>-${won(carry)}</strong></div><div class="row"><span>이미 승인된 예산</span><strong>-${won(approved)}</strong></div><div class="row"><span>강신나 추가 승인 요청액</span><strong>${won(need)}</strong></div>`};
  const ea=document.getElementById("expAmount");if(ea){const update=()=>{const v=parseMoney(ea.value),vat=Math.round(v/11),supply=v-vat;document.getElementById("vatPreview").innerHTML=`<div class="row"><span>공급가액</span><strong>${won(supply)}</strong></div><div class="row"><span>부가세</span><strong>${won(vat)}</strong></div><div class="row"><span>총 출금</span><strong class="money-expense">-${won(v)}</strong></div>`};ea.oninput=update;update()}
  if(document.getElementById("planType")) toggleRecurringOption();
+ bindCalendarLongPress();
 }
 
 (async function init(){
@@ -1116,7 +1204,7 @@ function renderApp(){
    const info=await session.json();
    if(info.authenticated){
      await loadRemoteState();
-     selectedWeekStart=sessionStorage.getItem("selectedWeekStart")||weekStartISO(todayISO());syncBudgetMirror();
+     {const savedWeek=sessionStorage.getItem("selectedWeekStart");if(savedWeek){const sd=new Date(savedWeek+"T00:00:00");selectedWeekStart=sd.getDay()===6?addDaysISO(savedWeek,1):weekStartISO(savedWeek)}else selectedWeekStart=weekStartISO(todayISO());sessionStorage.setItem("selectedWeekStart",selectedWeekStart);syncBudgetMirror();}
      const saved=sessionStorage.getItem("currentTeam");
      if(saved){currentTeam=saved;teamStyle(currentTeam);showOnly("mainScreen");renderApp()}else showOnly("teamScreen");
    }else showOnly("passwordScreen");
