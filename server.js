@@ -15,7 +15,7 @@ const SESSION_MS = 7 * 24 * 60 * 60 * 1000;
 function seedState(){return {
   accounts:{'강신나':0,'허슬':0,'엘리븐':0,'로아미':0},
   budgets:{'허슬':{approved:0,unused:0,extra:0},'엘리븐':{approved:0,unused:0,extra:0},'로아미':{approved:0,unused:0,extra:0}},
-  weeklyBudgets:{},budgetRequests:[],calendarNotes:{},weekStandard:'sunday',
+  weeklyBudgets:{},budgetRequests:[],calendarNotes:{},
   sales:[],expenses:[],plans:[],recurringExpenses:[],fixedCosts:[],debts:[],
   notifications:{'강신나':[],'허슬':[],'엘리븐':[],'로아미':[]}
 };}
