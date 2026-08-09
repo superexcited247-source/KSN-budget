@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>강신나 자금관리</title>
-<!-- build: v8 calendar/home fix -->
+<!-- build: v9 ranged calendar schedules -->
 <style>
 :root{
   --bg:#f6f7f9; --panel:#fff; --text:#17191d; --muted:#6b7280; --line:#e5e7eb;
@@ -77,7 +77,7 @@ table{width:100%;border-collapse:collapse}th,td{padding:11px 9px;border-bottom:1
 .cal-head{padding:8px;text-align:center;font-size:12px;font-weight:800;color:var(--muted);background:#fafafa;border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
 .day{min-height:126px;padding:7px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);background:#fff}.day.muted{background:#fbfbfc;color:#a0a5ad}.day-num{font-size:12px;font-weight:900;margin-bottom:5px}.today .day-num{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--dark);color:#fff}
 .cal-event{display:block;width:100%;border-radius:7px;padding:5px 6px;margin:4px 0;font-size:11px;font-weight:900;line-height:1.25;border:1px solid transparent;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.cal-event.plan{border-style:dashed}.team-hustle{background:var(--hustle-soft);border-color:var(--hustle)}.team-eleven{background:var(--eleven-soft);border-color:var(--eleven)}.team-loami{background:var(--loami-soft);border-color:var(--loami)}.team-central{background:var(--central-soft);border-color:var(--central)}
-.day{cursor:pointer;transition:box-shadow .12s ease,background .12s ease;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:manipulation}.day:hover{box-shadow:inset 0 0 0 2px #dbe3ef}.day.selected-day{box-shadow:inset 0 0 0 2px #334155;background:#f8fafc}.cal-note{margin-top:4px;padding:4px 5px;border-radius:6px;background:#fff7d6;border:1px solid #f0cf66;color:#655000;font-size:10px;font-weight:800;line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.balance-forecast{margin-top:14px;border:1px solid var(--line);border-radius:14px;padding:14px;background:#fafbfc}.forecast-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:10px}.forecast-head h3{font-size:16px;margin:0}.forecast-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px}.forecast-card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px}.forecast-card .name{font-size:11px;color:var(--muted);font-weight:800}.forecast-card .amount{font-size:17px;font-weight:950;margin-top:5px;word-break:break-all}.forecast-card.total{border-color:#94a3b8;background:#f8fafc}.calendar-click-hint{font-size:12px;color:var(--muted)}@media(max-width:850px){.forecast-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.forecast-card.total{grid-column:1/-1}}
+.day{cursor:pointer;transition:box-shadow .12s ease,background .12s ease;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:manipulation}.day:hover{box-shadow:inset 0 0 0 2px #dbe3ef}.day.selected-day{box-shadow:inset 0 0 0 2px #334155;background:#f8fafc}.cal-note{margin-top:4px;padding:4px 5px;border-radius:6px;background:#fff7d6;border:1px solid #f0cf66;color:#655000;font-size:10px;font-weight:800;line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.cal-schedule{margin-top:4px;padding:4px 5px;border-radius:6px;background:#eff6ff;border:1px solid #93c5fd;color:#1e3a8a;font-size:10px;font-weight:800;line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.schedule-list{margin-top:12px;border-top:1px solid var(--line);padding-top:10px}.schedule-item{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)}.schedule-item:last-child{border-bottom:0}.schedule-item .schedule-copy{min-width:0}.schedule-item .schedule-copy strong{display:block;font-size:13px}.schedule-item .schedule-copy span{display:block;color:var(--muted);font-size:11px;margin-top:2px}.schedule-actions{display:flex;gap:6px;flex:0 0 auto}.balance-forecast{margin-top:14px;border:1px solid var(--line);border-radius:14px;padding:14px;background:#fafbfc}.forecast-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:10px}.forecast-head h3{font-size:16px;margin:0}.forecast-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px}.forecast-card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px}.forecast-card .name{font-size:11px;color:var(--muted);font-weight:800}.forecast-card .amount{font-size:17px;font-weight:950;margin-top:5px;word-break:break-all}.forecast-card.total{border-color:#94a3b8;background:#f8fafc}.calendar-click-hint{font-size:12px;color:var(--muted)}@media(max-width:850px){.forecast-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.forecast-card.total{grid-column:1/-1}}
 .legend{display:flex;gap:8px;flex-wrap:wrap}.legend span{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:#555}.legend i{width:11px;height:11px;border-radius:3px;display:inline-block}
 .debt-card{border:1px solid var(--line);border-radius:14px;padding:14px;background:#fff}.debt-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:11px}
 .calc-result{background:#fafafa;border:1px solid var(--line);border-radius:13px;padding:14px;margin-top:12px}
@@ -172,6 +172,8 @@ function seedState(){
    budgetRequests:[],
    transfers:[],
    calendarNotes:{},
+   calendarSchedules:[],
+   calendarDataVersion:"v9",
    weekStandard:"sunday",
    sales:[],
    expenses:[],
@@ -211,6 +213,24 @@ function normalizeState(s){
  x.budgetRequests=Array.isArray(x.budgetRequests)?x.budgetRequests:[];
  x.transfers=Array.isArray(x.transfers)?x.transfers:[];
  x.calendarNotes=x.calendarNotes&&typeof x.calendarNotes==="object"?x.calendarNotes:{};
+ x.calendarSchedules=Array.isArray(x.calendarSchedules)?x.calendarSchedules:[];
+ // v8까지의 하루짜리 "일정" 메모를 v9 기간 일정으로 한 번만 변환
+ if(x.calendarDataVersion!=="v9"){
+   Object.entries(x.calendarNotes).forEach(([date,v])=>{
+     if(v&&typeof v==="object"&&v.type==="일정"&&String(v.text||v.memo||"").trim()){
+       const legacyId=`legacy-${date}`;
+       if(!x.calendarSchedules.some(it=>it.id===legacyId))x.calendarSchedules.push({id:legacyId,startDate:date,endDate:date,text:String(v.text||v.memo||"").trim(),createdAt:new Date().toISOString()});
+       delete x.calendarNotes[date];
+     }
+   });
+   x.calendarDataVersion="v9";
+ }
+ x.calendarSchedules=x.calendarSchedules.map(it=>({
+   id:it.id??Date.now()+Math.random(),
+   startDate:String(it.startDate||it.date||todayISO()),
+   endDate:String(it.endDate||it.startDate||it.date||todayISO()),
+   text:String(it.text||it.memo||"")
+ })).filter(it=>it.text&&it.startDate&&it.endDate);
  const currentWeek=iso(startOfWeek(todayISO()));
  if(!x.weeklyBudgets[currentWeek]){x.weeklyBudgets[currentWeek]={};["허슬","엘리븐","로아미"].forEach(t=>{const b=x.budgets[t]||{approved:0,unused:0,extra:0};x.weeklyBudgets[currentWeek][t]={approved:Number(b.approved)||0,unused:Number(b.unused)||0,extra:Number(b.extra)||0};});}
  x.sales=Array.isArray(x.sales)?x.sales:[];
@@ -776,11 +796,13 @@ function safeText(v){return String(v??"").replace(/&/g,"&amp;").replace(/</g,"&l
 function calendarNoteData(date){
  const v=(state.calendarNotes||{})[date];
  if(typeof v==="string")return {type:"메모",text:v};
- if(v&&typeof v==="object")return {type:v.type==="일정"?"일정":"메모",text:String(v.text||v.memo||"")};
+ if(v&&typeof v==="object")return {type:"메모",text:String(v.text||v.memo||"")};
  return {type:"메모",text:""};
 }
 function calendarMemo(date){return calendarNoteData(date).text}
-function calendarNoteType(date){return calendarNoteData(date).type}
+function calendarSchedulesForDate(date){
+ return (state.calendarSchedules||[]).filter(it=>it.startDate<=date&&it.endDate>=date).sort((a,b)=>a.startDate.localeCompare(b.startDate)||a.endDate.localeCompare(b.endDate)||String(a.text).localeCompare(String(b.text)));
+}
 function expectedBalancesAt(date){
  const teams=["강신나","허슬","엘리븐","로아미"],today=todayISO(),b={};
  teams.forEach(t=>b[t]=Number(state.accounts[t])||0);
@@ -813,22 +835,50 @@ window.calendarDayDoubleClick=function(date){
  selectedCalendarDate=date;
  openCalendarDay(date);
 }
-window.openCalendarDay=function(date){
- selectedCalendarDate=date;
- const note=calendarNoteData(date),events=getCalendarEventsForDate(date);
- const eventHtml=events.length?events.map(e=>`<div class="row"><span>${safeText(e.name||"")} · ${safeText(e.team||"")}</span><strong class="${e.type==="expense"?"money-expense":"money-income"}">${e.type==="expense"?"-":"+"}${won(e.amount||0)}</strong></div>`).join(""):`<div class="empty">등록된 매출·지출·예정 내역이 없습니다.</div>`;
- document.getElementById("modalRoot").innerHTML=`<div class="modal-back"><div class="modal"><h3>${dateLabel(date)} 메모·일정 등록</h3><p>단순 메모나 일정을 남길 수 있습니다. 이 내용은 계좌잔고 계산에는 영향을 주지 않습니다.</p><div class="form-grid"><div class="field"><label>구분</label><select id="calendarNoteType"><option value="메모" ${note.type==="메모"?"selected":""}>메모</option><option value="일정" ${note.type==="일정"?"selected":""}>일정</option></select></div><div class="field"><label>날짜</label><input value="${date}" disabled></div></div><div class="field" style="margin-top:10px"><label>내용</label><textarea id="calendarMemoInput" rows="5" placeholder="예: 거래처 미팅, 촬영 일정, 입금 확인 필요">${safeText(note.text)}</textarea></div><div style="margin-top:14px"><div class="hint" style="margin-bottom:6px">이날 등록된 자금 일정</div>${eventHtml}</div><div class="form-actions">${note.text?`<button class="ghost" onclick="deleteCalendarMemo('${date}')">삭제</button>`:""}<button class="ghost" onclick="closeModal()">취소</button><button class="primary" onclick="saveCalendarMemo('${date}')">저장</button></div></div></div>`;
- renderApp();
+window.toggleCalendarEntryFields=function(){
+ const type=document.getElementById("calendarEntryType")?.value||"메모";
+ const memoDate=document.getElementById("calendarMemoDateField"),scheduleDates=document.getElementById("calendarScheduleDateFields");
+ if(memoDate)memoDate.classList.toggle("hidden",type!=="메모");
+ if(scheduleDates)scheduleDates.classList.toggle("hidden",type!=="일정");
 }
-window.saveCalendarMemo=function(date){
- const text=(document.getElementById("calendarMemoInput")?.value||"").trim();
- const type=document.getElementById("calendarNoteType")?.value==="일정"?"일정":"메모";
- state.calendarNotes=state.calendarNotes||{};
- if(text)state.calendarNotes[date]={type,text};else delete state.calendarNotes[date];
- saveState();closeModal();showToast(text?`${type}가 저장되었습니다.`:"내용이 비워졌습니다.",dateLabel(date));renderApp();
+window.openCalendarDay=function(date,editScheduleId=null){
+ selectedCalendarDate=date;
+ const note=calendarNoteData(date),events=getCalendarEventsForDate(date),schedules=calendarSchedulesForDate(date);
+ const editing=editScheduleId!==null?(state.calendarSchedules||[]).find(x=>String(x.id)===String(editScheduleId)):null;
+ const initialType=editing?"일정":"메모";
+ const initialText=editing?editing.text:note.text;
+ const startDate=editing?editing.startDate:date,endDate=editing?editing.endDate:date;
+ const eventHtml=events.length?events.map(e=>`<div class="row"><span>${safeText(e.name||"")} · ${safeText(e.team||"")}</span><strong class="${e.type==="expense"?"money-expense":"money-income"}">${e.type==="expense"?"-":"+"}${won(e.amount||0)}</strong></div>`).join(""):`<div class="empty">등록된 매출·지출·예정 내역이 없습니다.</div>`;
+ const scheduleHtml=schedules.length?schedules.map(it=>`<div class="schedule-item"><div class="schedule-copy"><strong>${safeText(it.text)}</strong><span>${it.startDate===it.endDate?dateLabel(it.startDate):`${dateLabel(it.startDate)} ~ ${dateLabel(it.endDate)}`}</span></div><div class="schedule-actions"><button class="ghost" onclick="openCalendarDay('${date}','${safeText(String(it.id))}')">수정</button><button class="ghost" onclick="deleteCalendarSchedule('${safeText(String(it.id))}','${date}')">삭제</button></div></div>`).join(""):`<div class="empty">이 날짜에 걸쳐 있는 일정이 없습니다.</div>`;
+ document.getElementById("modalRoot").innerHTML=`<div class="modal-back"><div class="modal"><h3>${dateLabel(date)} 메모·일정 등록</h3><p>메모는 하루만 표시되고, 일정은 시작일~종료일 기간 전체에 표시됩니다. 계좌잔고 계산에는 영향을 주지 않습니다.</p><div class="form-grid"><div class="field"><label>구분</label><select id="calendarEntryType" onchange="toggleCalendarEntryFields()"><option value="메모" ${initialType==="메모"?"selected":""}>메모</option><option value="일정" ${initialType==="일정"?"selected":""}>일정</option></select></div><div class="field ${initialType==="메모"?"":"hidden"}" id="calendarMemoDateField"><label>날짜</label><input value="${date}" disabled></div></div><div class="form-grid ${initialType==="일정"?"":"hidden"}" id="calendarScheduleDateFields" style="margin-top:10px"><div class="field"><label>시작일</label><input id="calendarScheduleStart" type="date" value="${startDate}"></div><div class="field"><label>종료일</label><input id="calendarScheduleEnd" type="date" value="${endDate}"></div></div><div class="field" style="margin-top:10px"><label>내용</label><textarea id="calendarEntryText" rows="4" placeholder="예: 거래처 미팅, 3일간 촬영, 입금 확인 필요">${safeText(initialText)}</textarea></div><div class="schedule-list"><div class="hint" style="margin-bottom:6px">이 날짜에 걸쳐 있는 일정</div>${scheduleHtml}</div><div style="margin-top:14px"><div class="hint" style="margin-bottom:6px">이날 등록된 자금 일정</div>${eventHtml}</div><div class="form-actions">${!editing&&note.text?`<button class="ghost" onclick="deleteCalendarMemo('${date}')">메모 삭제</button>`:""}<button class="ghost" onclick="closeModal()">취소</button><button class="primary" onclick="saveCalendarEntry('${date}',${editing?`'${safeText(String(editing.id))}'`:"null"})">${editing?"일정 수정":"저장"}</button></div></div></div>`;
+}
+window.saveCalendarEntry=function(date,editScheduleId=null){
+ const type=document.getElementById("calendarEntryType")?.value==="일정"?"일정":"메모";
+ const text=(document.getElementById("calendarEntryText")?.value||"").trim();
+ if(!text)return showToast("내용을 입력해주세요.","메모나 일정 내용을 적어주세요.","error");
+ if(type==="메모"){
+   state.calendarNotes=state.calendarNotes||{};
+   state.calendarNotes[date]={type:"메모",text};
+   if(editScheduleId!==null)state.calendarSchedules=(state.calendarSchedules||[]).filter(x=>String(x.id)!==String(editScheduleId));
+   saveState();closeModal();showToast("메모가 저장되었습니다.",dateLabel(date));renderApp();return;
+ }
+ const startDate=document.getElementById("calendarScheduleStart")?.value||date;
+ const endDate=document.getElementById("calendarScheduleEnd")?.value||date;
+ if(startDate>endDate)return showToast("일정 기간을 확인해주세요.","종료일은 시작일보다 빠를 수 없습니다.","error");
+ state.calendarSchedules=state.calendarSchedules||[];
+ if(editScheduleId!==null){
+   const it=state.calendarSchedules.find(x=>String(x.id)===String(editScheduleId));
+   if(it){it.startDate=startDate;it.endDate=endDate;it.text=text;it.updatedAt=new Date().toISOString();}
+ }else{
+   state.calendarSchedules.push({id:`schedule-${Date.now()}-${Math.random().toString(36).slice(2,7)}`,startDate,endDate,text,createdAt:new Date().toISOString()});
+ }
+ saveState();closeModal();showToast(editScheduleId!==null?"일정이 수정되었습니다.":"일정이 등록되었습니다.",startDate===endDate?dateLabel(startDate):`${dateLabel(startDate)} ~ ${dateLabel(endDate)}`);renderApp();
 }
 window.deleteCalendarMemo=function(date){
- state.calendarNotes=state.calendarNotes||{};delete state.calendarNotes[date];saveState();closeModal();showToast("메모·일정이 삭제되었습니다.",dateLabel(date));renderApp();
+ state.calendarNotes=state.calendarNotes||{};delete state.calendarNotes[date];saveState();closeModal();showToast("메모가 삭제되었습니다.",dateLabel(date));renderApp();
+}
+window.deleteCalendarSchedule=function(id,returnDate){
+ state.calendarSchedules=(state.calendarSchedules||[]).filter(x=>String(x.id)!==String(id));saveState();showToast("일정이 삭제되었습니다.",dateLabel(returnDate));openCalendarDay(returnDate);
 }
 function bindCalendarLongPress(){
  document.querySelectorAll(".day[data-calendar-date]").forEach(el=>{
@@ -879,11 +929,11 @@ function renderCalendarSection(){
    else if(day>days){day=day-days;dateObj=new Date(y,m+1,day);curMonth=false}
    else dateObj=new Date(y,m,day);
    const ds=`${dateObj.getFullYear()}-${String(dateObj.getMonth()+1).padStart(2,"0")}-${String(dateObj.getDate()).padStart(2,"0")}`;
-   const ev=events.filter(e=>e.date===ds),memo=calendarMemo(ds),note=memo?safeText(memo.split(/\n/)[0]):"";
-   cells.push(`<div class="day ${!curMonth?"muted":""} ${ds===todayISO()?"today":""} ${ds===selectedCalendarDate?"selected-day":""}" data-calendar-date="${ds}" onclick="calendarDayClick('${ds}')" ondblclick="calendarDayDoubleClick('${ds}')" oncontextmenu="return false"><div class="day-num">${day}</div>${ev.map(e=>`<div class="cal-event ${(TEAM_META[e.team]||TEAM_META["강신나"]).class} ${e.planned?"plan":""}" title="${safeText(e.name)}"><span style="color:${e.type==="expense"?"#c62828":"#176b42"}">${e.team} ${e.type==="expense"?"-":"+"}${shortMoney(e.amount)}</span>${e.isRecurring?" 고정":(e.planned?" 예정":"")}</div>`).join("")}${memo?`<div class="cal-note" title="${safeText(memo)}">${calendarNoteType(ds)} · ${note}</div>`:""}</div>`);
+   const ev=events.filter(e=>e.date===ds),memo=calendarMemo(ds),note=memo?safeText(memo.split(/\n/)[0]):"",schedules=calendarSchedulesForDate(ds);
+   cells.push(`<div class="day ${!curMonth?"muted":""} ${ds===todayISO()?"today":""} ${ds===selectedCalendarDate?"selected-day":""}" data-calendar-date="${ds}" onclick="calendarDayClick('${ds}')" ondblclick="calendarDayDoubleClick('${ds}')" oncontextmenu="return false"><div class="day-num">${day}</div>${ev.map(e=>`<div class="cal-event ${(TEAM_META[e.team]||TEAM_META["강신나"]).class} ${e.planned?"plan":""}" title="${safeText(e.name)}"><span style="color:${e.type==="expense"?"#c62828":"#176b42"}">${e.team} ${e.type==="expense"?"-":"+"}${shortMoney(e.amount)}</span>${e.isRecurring?" 고정":(e.planned?" 예정":"")}</div>`).join("")}${schedules.map(it=>`<div class="cal-schedule" title="${safeText(it.text)} · ${it.startDate}~${it.endDate}">일정 · ${safeText(it.text.split(/\n/)[0])}</div>`).join("")}${memo?`<div class="cal-note" title="${safeText(memo)}">메모 · ${note}</div>`:""}</div>`);
  }
  const forecast=expectedBalancesAt(selectedCalendarDate),past=selectedCalendarDate<todayISO();
- return `<section class="section"><div class="section-title"><div><h2>통합 캘린더</h2><div class="legend" style="margin-top:8px"><span><i style="background:var(--hustle)"></i>허슬</span><span><i style="background:var(--eleven)"></i>엘리븐</span><span><i style="background:var(--loami)"></i>로아미</span></div></div><div class="calendar-tools"><button class="ghost" onclick="moveMonth(-1)">‹</button><div class="calendar-title">${y}년 ${m+1}월</div><button class="ghost" onclick="moveMonth(1)">›</button></div></div><div class="hint" style="margin-bottom:10px">한 번 누르기 = 날짜 선택·예상잔고 확인 · PC 더블클릭 / 휴대폰 길게 누르기 = 메모·일정 등록 · 빨강 = 지출 · 초록 = 매출 · 점선 = 미리 신고 · 고정 = 자동생성</div><div class="calendar">${["일","월","화","수","목","금","토"].map(d=>`<div class="cal-head">${d}</div>`).join("")}${cells.join("")}</div><div class="balance-forecast"><div class="forecast-head"><div><h3>${dateLabel(selectedCalendarDate)} 예상 계좌잔고</h3><div class="calendar-click-hint">${past?"과거 날짜는 현재 잔액에서 실제 등록내역을 역산한 참고값입니다.":"현재 실제 잔액에 선택 날짜까지의 미리 신고 예정 매출·지출을 반영한 값입니다."}</div></div><button class="soft-btn" onclick="openCalendarDay('${selectedCalendarDate}')">메모·일정 등록</button></div><div class="forecast-grid">${["강신나","허슬","엘리븐","로아미"].map(t=>`<div class="forecast-card"><div class="name" style="color:${TEAM_META[t].color}">${t}</div><div class="amount">${won(forecast[t])}</div></div>`).join("")}<div class="forecast-card total"><div class="name">통합 예상잔고</div><div class="amount">${won(forecast["통합"])}</div></div></div></div></section>`;
+ return `<section class="section"><div class="section-title"><div><h2>통합 캘린더</h2><div class="legend" style="margin-top:8px"><span><i style="background:var(--hustle)"></i>허슬</span><span><i style="background:var(--eleven)"></i>엘리븐</span><span><i style="background:var(--loami)"></i>로아미</span></div></div><div class="calendar-tools"><button class="ghost" onclick="moveMonth(-1)">‹</button><div class="calendar-title">${y}년 ${m+1}월</div><button class="ghost" onclick="moveMonth(1)">›</button></div></div><div class="hint" style="margin-bottom:10px">한 번 누르기 = 날짜 선택·예상잔고 확인 · PC 더블클릭 / 휴대폰 길게 누르기 = 메모·기간 일정 등록 · 일정은 시작일~종료일 전체에 표시 · 빨강 = 지출 · 초록 = 매출 · 점선 = 미리 신고 · 고정 = 자동생성</div><div class="calendar">${["일","월","화","수","목","금","토"].map(d=>`<div class="cal-head">${d}</div>`).join("")}${cells.join("")}</div><div class="balance-forecast"><div class="forecast-head"><div><h3>${dateLabel(selectedCalendarDate)} 예상 계좌잔고</h3><div class="calendar-click-hint">${past?"과거 날짜는 현재 잔액에서 실제 등록내역을 역산한 참고값입니다.":"현재 실제 잔액에 선택 날짜까지의 미리 신고 예정 매출·지출을 반영한 값입니다."}</div></div><button class="soft-btn" onclick="openCalendarDay('${selectedCalendarDate}')">메모·일정 등록</button></div><div class="forecast-grid">${["강신나","허슬","엘리븐","로아미"].map(t=>`<div class="forecast-card"><div class="name" style="color:${TEAM_META[t].color}">${t}</div><div class="amount">${won(forecast[t])}</div></div>`).join("")}<div class="forecast-card total"><div class="name">통합 예상잔고</div><div class="amount">${won(forecast["통합"])}</div></div></div></div></section>`;
 }
 function calendarPage(){
  return `<div class="page-head"><div><h1>통합 캘린더</h1><div class="sub">각 팀의 실제 매출·지출과 미리 신고된 예정 내역을 일정처럼 확인합니다.</div></div></div>${renderCalendarSection()}`;
