@@ -174,6 +174,7 @@ function seedState(){
    calendarNotes:{},
    calendarSchedules:[],
    calendarDataVersion:"v9",
+   budgetRequestVersion:"v10",
    weekStandard:"sunday",
    sales:[],
    expenses:[],
@@ -211,6 +212,12 @@ function normalizeState(s){
  x.budgets=x.budgets||{"허슬":{approved:0,unused:0,extra:0},"엘리븐":{approved:0,unused:0,extra:0},"로아미":{approved:0,unused:0,extra:0}};
  x.weeklyBudgets=x.weeklyBudgets&&typeof x.weeklyBudgets==="object"?x.weeklyBudgets:{};
  x.budgetRequests=Array.isArray(x.budgetRequests)?x.budgetRequests:[];
+ x.budgetRequests.forEach(r=>{
+   if(!r.requestType)r.requestType="주간";
+   if(r.requestType!=="추가")r.requestType="주간";
+   if(typeof r.approvedAmount!=="number")r.approvedAmount=Number(r.approvedAmount)||0;
+ });
+ x.budgetRequestVersion="v10";
  x.transfers=Array.isArray(x.transfers)?x.transfers:[];
  x.calendarNotes=x.calendarNotes&&typeof x.calendarNotes==="object"?x.calendarNotes:{};
  x.calendarSchedules=Array.isArray(x.calendarSchedules)?x.calendarSchedules:[];
@@ -410,7 +417,7 @@ document.getElementById("notifyBtn").onclick=()=>document.getElementById("notify
 document.addEventListener("click",e=>{if(!e.target.closest(".notify-wrap"))document.getElementById("notifyPanel")?.classList.add("hidden")});
 
 function menus(team){
- if(team==="강신나") return {main:["홈","통합 캘린더","주간예산","월간예산","매출·지출","자금·계좌","고정비","설정"],bottom:["부채·상환계획"]};
+ if(team==="강신나") return {main:["홈","지출 등록","통합 캘린더","주간예산","월간예산","매출·지출","자금·계좌","고정비","설정"],bottom:["부채·상환계획"]};
  return {main:["홈","예산 요청","매출 등록","지출 등록","미리 신고","잔액 입력","내역 보기"],bottom:[]};
 }
 function renderNav(){
@@ -418,7 +425,7 @@ function renderNav(){
  side.innerHTML=`<div class="nav-main">${m.main.map(x=>`<button class="nav-btn ${x===currentPage?"active":""}" data-p="${x}">${x}</button>`).join("")}</div>
  <div class="nav-bottom">${m.bottom.map(x=>`<button class="nav-btn debt ${x===currentPage?"active":""}" data-p="${x}">▣ ${x}</button>`).join("")}</div>`;
  side.querySelectorAll("[data-p]").forEach(b=>b.onclick=()=>{currentPage=b.dataset.p;renderApp()});
- const mobileItems=currentTeam==="강신나"?["홈","통합 캘린더","주간예산","자금·계좌","부채·상환계획"]:["홈","예산 요청","매출 등록","지출 등록","미리 신고"];
+ const mobileItems=currentTeam==="강신나"?["홈","지출 등록","통합 캘린더","주간예산","자금·계좌"]:["홈","예산 요청","매출 등록","지출 등록","미리 신고"];
  const mob=document.getElementById("mobileNav");mob.innerHTML=mobileItems.map(x=>`<button class="${x===currentPage?"active":""}" data-p="${x}">${x.replace("·상환계획","")}</button>`).join("");
  mob.querySelectorAll("[data-p]").forEach(b=>b.onclick=()=>{currentPage=b.dataset.p;renderApp()});
 }
@@ -440,21 +447,52 @@ window.usePlan=function(id){selectedPlanId=id;const p=state.plans.find(x=>x.id==
 
 function teamHome(team){
  const b=getWeekBudget(team),info=weekLabelInfo();
+ const hasBudgetRequest=state.budgetRequests.some(r=>r.team===team&&r.weekStart===selectedWeekStart);
+ const budgetActionTitle=hasBudgetRequest?"추가 예산 요청":"이번 주 예산 요청";
+ const budgetActionText=hasBudgetRequest?"이미 신청한 예산 외에 더 필요한 금액만 추가 요청":"선택한 주 기준으로 필요한 기본 예산을 요청";
  return `<div class="page-head"><div><h1>${team}</h1><div class="sub">예산·매출·지출·예정 내역을 빠르게 관리합니다.</div></div><div class="week-chip">${info.label} · ${info.range}</div></div>
- <div class="cards">${stat("현재 계좌잔액",won(state.accounts[team]),`<button class="soft-btn" onclick="openBalance('${team}')">실제 잔액 맞추기</button>`)}${stat("이번 달 실매출",won(monthSales(team)),"입금완료 기준")}${stat("이번 달 실제 지출",won(monthExpenses(team)),"등록된 지출 합계")}${stat("선택 주 승인예산",won(b.approved),info.range)}${stat("선택 주 미사용예산",won(b.unused),"지출 등록 시 해당 지출 주 예산에서 차감")}${stat("입금 대기",won(waitingSales(team)))}</div>
- <section class="section"><div class="section-title"><h2>빠른 실행</h2><div class="hint">자주 쓰는 기능</div></div><div class="quick-grid"><button class="quick primary-team" onclick="go('예산 요청')"><strong>이번 주 예산 요청</strong><span>선택한 주 기준으로 필요한 금액을 요청</span></button><button class="quick" onclick="go('지출 등록')"><strong>지출 등록</strong><span>부가세 포함 금액 입력 · 계좌와 해당 주 예산 자동 차감</span></button><button class="quick" onclick="go('매출 등록')"><strong>매출 등록</strong><span>입금완료 시 해당 계좌잔액 자동 증가</span></button><button class="quick" onclick="go('미리 신고')"><strong>지출·매출 미리 신고</strong><span>미래 날짜를 골라 예상 금액 등록</span></button><button class="quick" onclick="go('잔액 입력')"><strong>주말 잔액 입력</strong><span>선택 주의 남은 예산을 정산</span></button><button class="quick" onclick="go('내역 보기')"><strong>내역 보기</strong><span>매출·지출·예정 내역 확인</span></button></div></section>
+ <div class="cards">${stat("현재 계좌잔액",won(state.accounts[team]),`<button class="soft-btn" onclick="openBalance('${team}')">실제 잔액 맞추기</button>`)}${stat("이번 달 실매출",won(monthSales(team)),"입금완료 기준")}${stat("이번 달 실제 지출",won(monthExpenses(team)),"등록된 지출 합계")}${stat("선택 주 승인예산",won(b.approved),b.extra?`추가예산 ${won(b.extra)} 포함`:info.range)}${stat("선택 주 미사용예산",won(b.unused),"지출 등록 시 해당 지출 주 예산에서 차감")}${stat("입금 대기",won(waitingSales(team)))}</div>
+ <section class="section"><div class="section-title"><h2>빠른 실행</h2><div class="hint">자주 쓰는 기능</div></div><div class="quick-grid"><button class="quick primary-team" onclick="go('예산 요청')"><strong>${budgetActionTitle}</strong><span>${budgetActionText}</span></button><button class="quick" onclick="go('지출 등록')"><strong>지출 등록</strong><span>부가세 포함 금액 입력 · 계좌와 해당 주 예산 자동 차감</span></button><button class="quick" onclick="go('매출 등록')"><strong>매출 등록</strong><span>입금완료 시 해당 계좌잔액 자동 증가</span></button><button class="quick" onclick="go('미리 신고')"><strong>지출·매출 미리 신고</strong><span>미래 날짜를 골라 예상 금액 등록</span></button><button class="quick" onclick="go('잔액 입력')"><strong>주말 잔액 입력</strong><span>선택 주의 남은 예산을 정산</span></button><button class="quick" onclick="go('내역 보기')"><strong>내역 보기</strong><span>매출·지출·예정 내역 확인</span></button></div></section>
  <section class="section"><div class="section-title"><h2>선택 주 미리 신고</h2><div class="hint">${info.range}</div></div>${[...plansForWeek(team,"expense"),...plansForWeek(team,"income")].sort((a,b)=>a.date.localeCompare(b.date)).map(p=>`<div class="row"><span>${dateLabel(p.date)} · ${p.name}</span><strong class="${p.type==="expense"?"money-expense":"money-income"}">${p.type==="expense"?"-":"+"}${won(p.amount)}</strong></div>`).join("")||`<div class="empty">이 주의 예정 내역이 없습니다.</div>`}</section>`;
 }
 
 function budgetPage(team){
  const b=getWeekBudget(team),carry=weekCarryover(team),planned=plansForWeek(team,"expense").reduce((a,p)=>a+p.amount,0),info=weekLabelInfo();
  const existing=state.budgetRequests.filter(r=>r.team===team&&r.weekStart===selectedWeekStart).sort((a,b)=>(b.createdAt||"").localeCompare(a.createdAt||""));
- return `<div class="page-head"><div><h1>예산 요청</h1><div class="sub">${info.label} (${info.range}) 기준으로 예산을 요청합니다.</div></div></div>${planPanel(team,"expense")}<section class="section"><div class="row"><span>전주 이월 미사용예산</span><strong>${won(carry)}</strong></div><div class="row"><span>이 주 미리 신고된 지출</span><strong class="money-expense">${won(planned)}</strong></div><div class="row"><span>현재 이 주 승인예산</span><strong>${won(b.approved)}</strong></div><div class="form-grid" style="margin-top:14px"><div class="field"><label>이번 주 목표 예산</label><input id="budgetTarget" inputmode="numeric" placeholder="예: 3,500,000"></div><div class="field"><label>메모</label><input id="budgetMemo" placeholder="예: 광고 / 제작 / 운영비"></div></div><div id="budgetCalc" class="calc-result"><div class="row"><span>강신나 추가 승인 요청액</span><strong>금액 입력 전</strong></div></div><div class="form-actions"><button class="primary" onclick="submitBudget('${team}')">${info.label} 예산 요청</button></div></section><section class="section"><div class="section-title"><h2>이 주 요청 내역</h2><div class="hint">승인 여부 확인</div></div>${existing.length?`<table><thead><tr><th>요청액</th><th>목표예산</th><th>메모</th><th>상태</th></tr></thead><tbody>${existing.map(r=>`<tr><td>${won(r.requestedAmount)}</td><td>${won(r.targetAmount)}</td><td>${r.memo||"-"}</td><td><span class="pill ${r.status==="승인"?"ok":r.status==="거절"?"danger":"wait"}">${r.status}</span></td></tr>`).join("")}</tbody></table>`:`<div class="empty">아직 요청한 예산이 없습니다.</div>`}</section>`;
+ const hasInitial=existing.length>0;
+ const approvedExtra=existing.filter(r=>r.requestType==="추가"&&r.status==="승인").reduce((a,r)=>a+(Number(r.approvedAmount||r.requestedAmount)||0),0);
+ const pendingTotal=existing.filter(r=>r.status==="요청").reduce((a,r)=>a+(Number(r.requestedAmount)||0),0);
+ const form=hasInitial?`<section class="section">
+   <div class="notice"><b>추가 예산 요청</b><br>이번 주 기본 예산은 이미 신청했습니다. 이제 <b>더 필요한 금액만</b> 입력하면 됩니다. 기존 50만원을 80만원으로 다시 바꿔 신청할 필요가 없습니다.</div>
+   <div class="row"><span>현재 이 주 승인예산</span><strong>${won(b.approved)}</strong></div>
+   <div class="row"><span>승인된 추가예산</span><strong>${won(approvedExtra)}</strong></div>
+   <div class="row"><span>현재 승인 대기</span><strong>${won(pendingTotal)}</strong></div>
+   <div class="form-grid" style="margin-top:14px"><div class="field"><label>추가로 필요한 금액</label><input id="extraBudgetAmount" inputmode="numeric" placeholder="예: 300,000"></div><div class="field"><label>추가 요청 사유</label><input id="budgetMemo" placeholder="예: 광고비 추가 / 긴급 제작비"></div></div>
+   <div class="form-actions"><button class="primary" onclick="submitExtraBudget('${team}')">추가 예산 요청</button></div>
+ </section>`:`<section class="section">
+   <div class="notice"><b>이번 주 최초 예산 요청</b><br>처음 한 번만 이번 주 목표 예산을 입력합니다. 이후 더 필요한 돈이 생기면 ‘추가 예산 요청’으로 금액만 추가하면 됩니다.</div>
+   <div class="row"><span>전주 이월 미사용예산</span><strong>${won(carry)}</strong></div><div class="row"><span>이 주 미리 신고된 지출</span><strong class="money-expense">${won(planned)}</strong></div><div class="row"><span>현재 이 주 승인예산</span><strong>${won(b.approved)}</strong></div>
+   <div class="form-grid" style="margin-top:14px"><div class="field"><label>이번 주 목표 예산</label><input id="budgetTarget" inputmode="numeric" placeholder="예: 500,000"></div><div class="field"><label>메모</label><input id="budgetMemo" placeholder="예: 광고 / 제작 / 운영비"></div></div>
+   <div id="budgetCalc" class="calc-result"><div class="row"><span>강신나 승인 요청액</span><strong>금액 입력 전</strong></div></div><div class="form-actions"><button class="primary" onclick="submitBudget('${team}')">${info.label} 예산 요청</button></div>
+ </section>`;
+ return `<div class="page-head"><div><h1>${hasInitial?"추가 예산 요청":"예산 요청"}</h1><div class="sub">${info.label} (${info.range}) 기준입니다. 최초 신청 후에는 필요한 금액만 추가 신청할 수 있습니다.</div></div></div>${planPanel(team,"expense")}${form}<section class="section"><div class="section-title"><h2>이 주 요청 내역</h2><div class="hint">기본예산과 추가예산을 따로 확인</div></div>${existing.length?`<table><thead><tr><th>구분</th><th>요청액</th><th>기준</th><th>메모</th><th>상태</th></tr></thead><tbody>${existing.map(r=>`<tr><td><span class="pill ${r.requestType==="추가"?"wait":""}">${r.requestType==="추가"?"추가예산":"주간예산"}</span></td><td>${won(r.requestedAmount)}</td><td>${r.requestType==="추가"?"추가 요청":won(r.targetAmount)}</td><td>${r.memo||"-"}</td><td><span class="pill ${r.status==="승인"?"ok":r.status==="거절"?"danger":"wait"}">${r.status}</span></td></tr>`).join("")}</tbody></table>`:`<div class="empty">아직 요청한 예산이 없습니다.</div>`}</section>`;
 }
 window.submitBudget=function(team){
+ const existing=state.budgetRequests.some(r=>r.team===team&&r.weekStart===selectedWeekStart);
+ if(existing)return submitExtraBudget(team);
  const target=parseMoney(document.getElementById("budgetTarget").value),memo=document.getElementById("budgetMemo").value||"주간 운영예산";if(!target)return alert("목표 예산을 입력하세요.");
  const carry=weekCarryover(team),currentApproved=getWeekBudget(team).approved,need=Math.max(0,target-carry-currentApproved);if(need<=0)return alert("현재 승인예산과 전주 이월액으로 목표 예산이 이미 충족됩니다.");
- const req={id:Date.now(),team,weekStart:selectedWeekStart,targetAmount:target,carryover:carry,currentApproved,requestedAmount:need,memo,status:"요청",createdAt:new Date().toISOString(),approvedAmount:0};state.budgetRequests.push(req);notify("강신나",`${team} 예산 요청`,`${weekLabelInfo(selectedWeekStart).label} · ${won(need)} 승인 요청 · ${memo}`);notify(team,"예산 요청 접수",`${weekLabelInfo(selectedWeekStart).label} ${won(need)} 요청이 접수되었습니다.`);saveState();showToast("예산 요청이 등록되었습니다.",`${weekLabelInfo(selectedWeekStart).label} · ${won(need)} 요청`);renderApp();
+ const req={id:Date.now(),team,weekStart:selectedWeekStart,requestType:"주간",targetAmount:target,carryover:carry,currentApproved,requestedAmount:need,memo,status:"요청",createdAt:new Date().toISOString(),approvedAmount:0};state.budgetRequests.push(req);notify("강신나",`${team} 주간 예산 요청`,`${weekLabelInfo(selectedWeekStart).label} · ${won(need)} 승인 요청 · ${memo}`);notify(team,"주간 예산 요청 접수",`${weekLabelInfo(selectedWeekStart).label} ${won(need)} 요청이 접수되었습니다.`);saveState();showToast("주간 예산 요청이 등록되었습니다.",`${weekLabelInfo(selectedWeekStart).label} · ${won(need)} 요청`);renderApp();
+}
+window.submitExtraBudget=function(team){
+ const amount=parseMoney(document.getElementById("extraBudgetAmount")?.value),memo=document.getElementById("budgetMemo")?.value.trim()||"추가 운영예산";
+ if(!amount)return alert("추가로 필요한 금액을 입력하세요.");
+ const currentApproved=Number(getWeekBudget(team).approved)||0;
+ const req={id:Date.now(),team,weekStart:selectedWeekStart,requestType:"추가",targetAmount:0,carryover:0,currentApproved,requestedAmount:amount,memo,status:"요청",createdAt:new Date().toISOString(),approvedAmount:0};
+ state.budgetRequests.push(req);
+ notify("강신나",`${team} 추가 예산 요청`,`${weekLabelInfo(selectedWeekStart).label} · 추가 ${won(amount)} · ${memo}`);
+ notify(team,"추가 예산 요청 접수",`${weekLabelInfo(selectedWeekStart).label} 추가예산 ${won(amount)} 요청이 접수되었습니다.`);
+ saveState();showToast("추가 예산 요청이 등록되었습니다.",`${weekLabelInfo(selectedWeekStart).label} · +${won(amount)}`);renderApp();
 }
 
 function salesPage(team){
@@ -480,36 +518,38 @@ window.saveSale=function(team){
 }
 
 function expensePage(team){
- const plan=selectedPlanId?state.plans.find(x=>x.id===selectedPlanId):null;
+ const isCentral=team==="강신나";
+ const plan=!isCentral&&selectedPlanId?state.plans.find(x=>x.id===selectedPlanId):null;
  const pv=plan?.type==="expense"?plan:null;
- return `<div class="page-head"><div><h1>지출 등록</h1><div class="sub">부가세 포함 총액을 기준으로 계좌와 사용가능 예산을 자동 차감합니다.</div></div></div>
- ${planPanel(team,"expense")}
- <section class="section"><div class="notice"><b>부가세 포함 지출 기준</b><br>총 결제금액을 입력하면 공급가액과 부가세를 자동 계산합니다. 일반 과세 10% 기준으로 부가세는 총액의 1/11로 계산합니다.</div>
+ return `<div class="page-head"><div><h1>${isCentral?"강신나 지출 등록":"지출 등록"}</h1><div class="sub">${isCentral?"강신나 자체 운영비·고정 외 지출을 강신나 본계좌에서 바로 등록합니다.":"부가세 포함 총액을 기준으로 계좌와 사용가능 예산을 자동 차감합니다."}</div></div></div>
+ ${isCentral?"":planPanel(team,"expense")}
+ <section class="section"><div class="notice"><b>부가세 포함 지출 기준</b><br>총 결제금액을 입력하면 공급가액과 부가세를 자동 계산합니다. 일반 과세 10% 기준으로 부가세는 총액의 1/11로 계산합니다.${isCentral?" 강신나 자체 지출은 팀 주간예산을 차감하지 않습니다.":""}</div>
  <div class="form-grid">
-  <div class="field"><label>지출명</label><input id="expName" value="${pv?pv.name:""}" placeholder="예: 광고비"></div>
+  <div class="field"><label>지출명</label><input id="expName" value="${pv?pv.name:""}" placeholder="예: 광고비 / 사무용품"></div>
   <div class="field"><label>부가세 포함 총액</label><input id="expAmount" inputmode="numeric" value="${pv?pv.amount:""}" placeholder="0원"></div>
   <div class="field"><label>지출일</label><input id="expDate" type="date" value="${pv?pv.date:todayISO()}"></div>
-  <div class="field"><label>출금계좌</label><select id="expAccount"><option>${team}</option><option>강신나</option></select></div>
-  <div class="field"><label>예산에서 차감</label><select id="expBudget"><option value="yes" selected>예 · 미사용 예산도 차감</option><option value="no">아니오 · 계좌만 차감</option></select></div>
+  <div class="field"><label>출금계좌</label>${isCentral?`<input value="강신나" disabled><input id="expAccount" type="hidden" value="강신나">`:`<select id="expAccount"><option>${team}</option><option>강신나</option></select>`}</div>
+  ${isCentral?`<input id="expBudget" type="hidden" value="no">`:`<div class="field"><label>예산에서 차감</label><select id="expBudget"><option value="yes" selected>예 · 미사용 예산도 차감</option><option value="no">아니오 · 계좌만 차감</option></select></div>`}
   <div class="field"><label>메모</label><input id="expMemo" placeholder="선택 입력"></div>
  </div>
  <div id="vatPreview" class="calc-result"><div class="row"><span>공급가액</span><strong>0원</strong></div><div class="row"><span>부가세</span><strong>0원</strong></div><div class="row"><span>총 출금</span><strong>0원</strong></div></div>
  <div class="form-actions"><button class="primary" onclick="saveExpense('${team}')">지출 저장</button></div></section>`;
 }
 window.saveExpense=function(team){
- const name=document.getElementById("expName").value.trim(),amount=parseMoney(document.getElementById("expAmount").value),date=document.getElementById("expDate").value,account=document.getElementById("expAccount").value,cut=document.getElementById("expBudget").value==="yes";
+ const isCentral=team==="강신나";
+ const name=document.getElementById("expName").value.trim(),amount=parseMoney(document.getElementById("expAmount").value),date=document.getElementById("expDate").value,account=isCentral?"강신나":document.getElementById("expAccount").value,cut=!isCentral&&document.getElementById("expBudget").value==="yes";
  if(!name||!amount||!date)return alert("지출명, 금액, 날짜를 입력하세요.");if(state.accounts[account]<amount&&!confirm("계좌잔액보다 큰 지출입니다. 그래도 저장할까요?"))return;
  const vat=Math.round(amount/11),supply=amount-vat;
- const expenseWeek=weekStartISO(date),weekBudget=getWeekBudget(team,expenseWeek);
+ const expenseWeek=weekStartISO(date),weekBudget=isCentral?null:getWeekBudget(team,expenseWeek);
  const budgetDeducted=cut?Math.min(weekBudget.unused,amount):0;
- state.expenses.push({id:Date.now(),team,name,amount,date,account,vatIncluded:true,vat,supply,cutBudget:cut,budgetDeducted,budgetWeek:expenseWeek});
+ state.expenses.push({id:Date.now(),team,name,amount,date,account,vatIncluded:true,vat,supply,cutBudget:cut,budgetDeducted,budgetWeek:expenseWeek,memo:document.getElementById("expMemo")?.value||""});
  state.accounts[account]-=amount;
  if(cut)weekBudget.unused=Math.max(0,weekBudget.unused-budgetDeducted);
  syncBudgetMirror();
- notify(team,"지출 반영",`${name} -${won(amount)} · 계좌잔액 ${won(state.accounts[account])}${cut?` · ${weekLabelInfo(expenseWeek).label} 미사용예산 ${won(weekBudget.unused)}`:""}`);
- notify("강신나",`${team} 지출`,`${name} -${won(amount)} · ${account} 계좌`);
+ if(isCentral){notify("강신나","강신나 자체 지출",`${name} -${won(amount)} · 강신나 계좌잔액 ${won(state.accounts["강신나"])}`)}
+ else{notify(team,"지출 반영",`${name} -${won(amount)} · 계좌잔액 ${won(state.accounts[account])}${cut?` · ${weekLabelInfo(expenseWeek).label} 미사용예산 ${won(weekBudget.unused)}`:""}`);notify("강신나",`${team} 지출`,`${name} -${won(amount)} · ${account} 계좌`)}
  if(selectedPlanId){const p=state.plans.find(x=>x.id===selectedPlanId);if(p)p.status="realized";selectedPlanId=null}
- saveState();showToast("지출이 등록되었습니다.",`${won(amount)} · 부가세 ${won(vat)} 포함`);renderApp();
+ saveState();showToast("지출이 등록되었습니다.",`${team} · ${won(amount)} · 부가세 ${won(vat)} 포함`);renderApp();
 }
 
 function planPage(team){
@@ -663,27 +703,31 @@ window.deleteSale=function(id){
 
 window.editExpense=function(id){
  const e=state.expenses.find(x=>x.id===id);if(!e)return;
+ const isCentral=e.team==="강신나";
  document.getElementById("modalRoot").innerHTML=`<div class="modal-back"><div class="modal">
- <h3>지출 수정</h3><p>기존 계좌 차감분을 취소한 뒤 수정된 금액으로 다시 반영합니다. 새 버전에서 등록한 지출은 예산 차감분도 함께 재계산됩니다.</p>
+ <h3>지출 수정</h3><p>기존 계좌 차감분을 취소한 뒤 수정된 금액으로 다시 반영합니다.${isCentral?" 강신나 자체 지출은 팀 예산과 무관합니다.":" 예산 차감분도 함께 재계산됩니다."}</p>
  <div class="form-grid">
-  <div class="field"><label>지출명</label><input id="eeName" value="${e.name}"></div>
+  <div class="field"><label>지출명</label><input id="eeName" value="${safeText(e.name)}"></div>
   <div class="field"><label>부가세 포함 총액</label><input id="eeAmount" inputmode="numeric" value="${e.amount}"></div>
   <div class="field"><label>지출일</label><input id="eeDate" type="date" value="${e.date}"></div>
-  <div class="field"><label>출금계좌</label><select id="eeAccount">${[e.team,"강신나"].filter((v,i,a)=>a.indexOf(v)===i).map(a=>`<option ${a===e.account?"selected":""}>${a}</option>`).join("")}</select></div>
-  <div class="field"><label>예산에서 차감</label><select id="eeBudget"><option value="yes" ${e.cutBudget?"selected":""}>예 · 미사용 예산도 차감</option><option value="no" ${!e.cutBudget?"selected":""}>아니오 · 계좌만 차감</option></select></div>
+  <div class="field"><label>출금계좌</label>${isCentral?`<input value="강신나" disabled><input id="eeAccount" type="hidden" value="강신나">`:`<select id="eeAccount">${[e.team,"강신나"].filter((v,i,a)=>a.indexOf(v)===i).map(a=>`<option ${a===e.account?"selected":""}>${a}</option>`).join("")}</select>`}</div>
+  ${isCentral?`<input id="eeBudget" type="hidden" value="no">`:`<div class="field"><label>예산에서 차감</label><select id="eeBudget"><option value="yes" ${e.cutBudget?"selected":""}>예 · 미사용 예산도 차감</option><option value="no" ${!e.cutBudget?"selected":""}>아니오 · 계좌만 차감</option></select></div>`}
  </div>
  <div class="form-actions"><button class="ghost" onclick="closeModal()">취소</button><button class="primary" onclick="saveExpenseEdit(${id})">수정 저장</button></div>
  </div></div>`;
 }
 window.saveExpenseEdit=function(id){
  const e=state.expenses.find(x=>x.id===id);if(!e)return;
- const name=document.getElementById("eeName").value.trim(),amount=parseMoney(document.getElementById("eeAmount").value),date=document.getElementById("eeDate").value,account=document.getElementById("eeAccount").value,cut=document.getElementById("eeBudget").value==="yes";if(!name||!amount||!date)return alert("지출명, 금액, 날짜를 입력하세요.");
- state.accounts[e.account]+=e.amount;const oldWeekBudget=getWeekBudget(e.team,e.budgetWeek||weekStartISO(e.date));if(e.cutBudget)oldWeekBudget.unused+=Number(e.budgetDeducted||0);
- if(state.accounts[account]<amount&&!confirm("수정 후 계좌잔액보다 큰 지출입니다. 그래도 저장할까요?")){state.accounts[e.account]-=e.amount;if(e.cutBudget)oldWeekBudget.unused=Math.max(0,oldWeekBudget.unused-Number(e.budgetDeducted||0));return;}
- const vat=Math.round(amount/11),supply=amount-vat,newBudgetWeek=weekStartISO(date),newWeekBudget=getWeekBudget(e.team,newBudgetWeek),budgetDeducted=cut?Math.min(newWeekBudget.unused,amount):0;state.accounts[account]-=amount;if(cut)newWeekBudget.unused=Math.max(0,newWeekBudget.unused-budgetDeducted);Object.assign(e,{name,amount,date,account,vatIncluded:true,vat,supply,cutBudget:cut,budgetDeducted,budgetWeek:newBudgetWeek});syncBudgetMirror();notify(e.team,"지출 수정",`${name} -${won(amount)} · ${account} 계좌`);notify("강신나",`${e.team} 지출 수정`,`${name} -${won(amount)} · ${account} 계좌`);saveState();closeModal();showToast("지출 내역이 수정되었습니다.",`${name} · ${won(amount)}`);renderApp();
+ const isCentral=e.team==="강신나";
+ const name=document.getElementById("eeName").value.trim(),amount=parseMoney(document.getElementById("eeAmount").value),date=document.getElementById("eeDate").value,account=isCentral?"강신나":document.getElementById("eeAccount").value,cut=!isCentral&&document.getElementById("eeBudget").value==="yes";if(!name||!amount||!date)return alert("지출명, 금액, 날짜를 입력하세요.");
+ state.accounts[e.account]+=e.amount;let oldWeekBudget=null;if(e.cutBudget){oldWeekBudget=getWeekBudget(e.team,e.budgetWeek||weekStartISO(e.date));oldWeekBudget.unused+=Number(e.budgetDeducted||0)}
+ if(state.accounts[account]<amount&&!confirm("수정 후 계좌잔액보다 큰 지출입니다. 그래도 저장할까요?")){state.accounts[e.account]-=e.amount;if(e.cutBudget&&oldWeekBudget)oldWeekBudget.unused=Math.max(0,oldWeekBudget.unused-Number(e.budgetDeducted||0));return;}
+ const vat=Math.round(amount/11),supply=amount-vat,newBudgetWeek=weekStartISO(date),newWeekBudget=cut?getWeekBudget(e.team,newBudgetWeek):null,budgetDeducted=cut?Math.min(newWeekBudget.unused,amount):0;state.accounts[account]-=amount;if(cut)newWeekBudget.unused=Math.max(0,newWeekBudget.unused-budgetDeducted);Object.assign(e,{name,amount,date,account,vatIncluded:true,vat,supply,cutBudget:cut,budgetDeducted,budgetWeek:newBudgetWeek});syncBudgetMirror();
+ if(isCentral)notify("강신나","강신나 지출 수정",`${name} -${won(amount)} · 강신나 계좌`);else{notify(e.team,"지출 수정",`${name} -${won(amount)} · ${account} 계좌`);notify("강신나",`${e.team} 지출 수정`,`${name} -${won(amount)} · ${account} 계좌`)}
+ saveState();closeModal();showToast("지출 내역이 수정되었습니다.",`${name} · ${won(amount)}`);renderApp();
 }
 window.deleteExpense=function(id){
- const e=state.expenses.find(x=>x.id===id);if(!e)return;openConfirm("지출 내역 삭제",`${e.name} · ${won(e.amount)} 지출을 삭제할까요? 계좌 차감분${e.cutBudget?"과 예산 차감분":""}도 함께 되돌립니다.`,()=>{state.accounts[e.account]+=e.amount;const bw=getWeekBudget(e.team,e.budgetWeek||weekStartISO(e.date));if(e.cutBudget)bw.unused+=Number(e.budgetDeducted||0);syncBudgetMirror();state.expenses=state.expenses.filter(x=>x.id!==id);notify(e.team,"지출 삭제",`${e.name} ${won(e.amount)} 내역이 삭제되고 반영 금액이 복구되었습니다.`);notify("강신나",`${e.team} 지출 삭제`,`${e.name} ${won(e.amount)} 내역 삭제`);saveState();showToast("지출 내역이 삭제되었습니다.",`${e.name} · ${won(e.amount)} 반영 복구`);renderApp();});
+ const e=state.expenses.find(x=>x.id===id);if(!e)return;openConfirm("지출 내역 삭제",`${e.name} · ${won(e.amount)} 지출을 삭제할까요? 계좌 차감분${e.cutBudget?"과 예산 차감분":""}도 함께 되돌립니다.`,()=>{state.accounts[e.account]+=e.amount;if(e.cutBudget){const bw=getWeekBudget(e.team,e.budgetWeek||weekStartISO(e.date));bw.unused+=Number(e.budgetDeducted||0)}syncBudgetMirror();state.expenses=state.expenses.filter(x=>x.id!==id);if(e.team==="강신나")notify("강신나","강신나 지출 삭제",`${e.name} ${won(e.amount)} 내역이 삭제되고 계좌 금액이 복구되었습니다.`);else{notify(e.team,"지출 삭제",`${e.name} ${won(e.amount)} 내역이 삭제되고 반영 금액이 복구되었습니다.`);notify("강신나",`${e.team} 지출 삭제`,`${e.name} ${won(e.amount)} 내역 삭제`)}saveState();showToast("지출 내역이 삭제되었습니다.",`${e.name} · ${won(e.amount)} 반영 복구`);renderApp();});
 }
 
 window.editPlan=function(id){
@@ -767,8 +811,9 @@ function centralHome(){
  ${stat("선택 주 예정 지출",won(weeklyPlanExpense),"미리 신고 기준")}
  ${stat("현재 총 부채",won(totalDebt()),"등록된 대출 원금 잔액")}
  </div>
+ <section class="section"><div class="section-title"><h2>강신나 빠른 실행</h2><div class="hint">본계좌에서 직접 나가는 지출</div></div><div class="quick-grid"><button class="quick" onclick="go('지출 등록')"><strong>강신나 지출 등록</strong><span>강신나 본계좌에서 직접 사용한 비용을 등록</span></button></div></section>
  <section class="section"><div class="section-title"><h2>${info.label} 예산 요청</h2><div class="hint">수락 = 강신나 본계좌 출금 + 팀 계좌 입금 + 이 주 사용가능예산 반영</div></div>
- ${requests.length?`<div class="request-grid">${requests.map(r=>{const amount=Number(r.requestedAmount)||0,canFund=centralBalance>=amount;return `<div class="request-card" style="--team-color:${TEAM_META[r.team].color}"><h3 style="color:${TEAM_META[r.team].color}">${r.team}</h3><span class="week-chip">${r.status}</span><div class="request-amount">${won(amount)}</div><div class="row"><span>목표예산</span><strong>${won(r.targetAmount)}</strong></div><div class="row"><span>전주 이월</span><strong>${won(r.carryover||0)}</strong></div><div class="row"><span>현재 ${r.team} 계좌</span><strong>${won(state.accounts[r.team]||0)}</strong></div><div class="row"><span>메모</span><strong>${r.memo||"-"}</strong></div>${r.status==="요청"?`<div class="row"><span>지급 후 강신나 잔액</span><strong class="${canFund?"":"money-expense"}">${canFund?won(centralBalance-amount):"잔액 부족"}</strong></div>${!canFund?`<div class="fund-warning">강신나 본계좌에 ${won(amount-centralBalance)}이 부족합니다.</div>`:""}<div class="request-actions"><button class="approve-btn" ${canFund?"":"disabled"} onclick="approveBudgetRequest(${r.id})">${canFund?"수락·지급":"잔액 부족"}</button><button class="reject-btn" onclick="rejectBudgetRequest(${r.id})">거절</button></div>`:`<div class="success-note" style="margin-top:10px">${r.status==="승인"?`지급완료 · ${won(r.approvedAmount||r.requestedAmount)}`:"거절됨"}</div>`}</div>`}).join("")}</div>`:`<div class="empty">이 주에 들어온 예산 요청이 없습니다.</div>`}</section>
+ ${requests.length?`<div class="request-grid">${requests.map(r=>{const amount=Number(r.requestedAmount)||0,canFund=centralBalance>=amount;return `<div class="request-card" style="--team-color:${TEAM_META[r.team].color}"><h3 style="color:${TEAM_META[r.team].color}">${r.team}</h3><span class="week-chip">${r.requestType==="추가"?"추가예산":"주간예산"} · ${r.status}</span><div class="request-amount">${r.requestType==="추가"?"+":""}${won(amount)}</div>${r.requestType==="추가"?`<div class="row"><span>요청 구분</span><strong>추가 예산</strong></div>`:`<div class="row"><span>목표예산</span><strong>${won(r.targetAmount)}</strong></div><div class="row"><span>전주 이월</span><strong>${won(r.carryover||0)}</strong></div>`}<div class="row"><span>현재 ${r.team} 계좌</span><strong>${won(state.accounts[r.team]||0)}</strong></div><div class="row"><span>메모</span><strong>${r.memo||"-"}</strong></div>${r.status==="요청"?`<div class="row"><span>지급 후 강신나 잔액</span><strong class="${canFund?"":"money-expense"}">${canFund?won(centralBalance-amount):"잔액 부족"}</strong></div>${!canFund?`<div class="fund-warning">강신나 본계좌에 ${won(amount-centralBalance)}이 부족합니다.</div>`:""}<div class="request-actions"><button class="approve-btn" ${canFund?"":"disabled"} onclick="approveBudgetRequest(${r.id})">${canFund?"수락·지급":"잔액 부족"}</button><button class="reject-btn" onclick="rejectBudgetRequest(${r.id})">거절</button></div>`:`<div class="success-note" style="margin-top:10px">${r.status==="승인"?`지급완료 · ${won(r.approvedAmount||r.requestedAmount)}`:"거절됨"}</div>`}</div>`}).join("")}</div>`:`<div class="empty">이 주에 들어온 예산 요청이 없습니다.</div>`}</section>
  <section class="section"><div class="section-title"><h2>팀별 핵심 현황</h2><div class="legend"><span><i style="background:var(--hustle)"></i>허슬</span><span><i style="background:var(--eleven)"></i>엘리븐</span><span><i style="background:var(--loami)"></i>로아미</span></div></div><table><thead><tr><th>팀</th><th>계좌잔액</th><th>이번 달 실매출</th><th>이번 달 지출</th><th>선택 주 승인예산</th><th>미사용예산</th></tr></thead><tbody>${["허슬","엘리븐","로아미"].map(t=>{const b=getWeekBudget(t);return `<tr><td><b style="color:${TEAM_META[t].color}">${t}</b></td><td><strong>${won(state.accounts[t])}</strong></td><td class="money-income">${won(monthSales(t))}</td><td class="money-expense">${won(monthExpenses(t))}</td><td>${won(b.approved)}</td><td>${won(b.unused)}</td></tr>`}).join("")}</tbody></table></section>${renderCalendarSection()}`;
 }
 window.approveBudgetRequest=function(id){
@@ -780,13 +825,13 @@ window.approveBudgetRequest=function(id){
  const b=getWeekBudget(r.team,r.weekStart);
  state.accounts["강신나"]-=amount;
  state.accounts[r.team]=(Number(state.accounts[r.team])||0)+amount;
- b.approved+=amount;b.unused+=amount;
+ b.approved+=amount;b.unused+=amount;if(r.requestType==="추가")b.extra=(Number(b.extra)||0)+amount;
  r.status="승인";r.approvedAmount=amount;r.approvedAt=new Date().toISOString();r.fundedFrom="강신나";r.centralBalanceAfter=state.accounts["강신나"];
  state.transfers=state.transfers||[];
  state.transfers.push({id:Date.now(),date:todayISO(),from:"강신나",to:r.team,amount,memo:`${weekLabelInfo(r.weekStart).label} 예산 지급`,type:"예산지급",budgetRequestId:r.id,weekStart:r.weekStart});
  syncBudgetMirror();
- notify(r.team,"예산 입금",`${weekLabelInfo(r.weekStart).label} 예산 ${won(amount)}이 ${r.team} 계좌와 사용가능예산에 반영되었습니다.`);
- notify("강신나",`${r.team} 예산 지급 완료`,`${won(amount)} 지급 · 강신나 잔액 ${won(state.accounts["강신나"])}`);
+ notify(r.team,r.requestType==="추가"?"추가 예산 입금":"예산 입금",`${weekLabelInfo(r.weekStart).label} ${r.requestType==="추가"?"추가예산 ":"예산 "}${won(amount)}이 ${r.team} 계좌와 사용가능예산에 반영되었습니다.`);
+ notify("강신나",`${r.team} ${r.requestType==="추가"?"추가 ":""}예산 지급 완료`,`${won(amount)} 지급 · 강신나 잔액 ${won(state.accounts["강신나"])}`);
  saveState();showToast("예산이 승인·지급되었습니다.",`${r.team} · ${won(amount)} 지급 완료`);renderApp();
 }
 window.rejectBudgetRequest=function(id){const r=state.budgetRequests.find(x=>x.id===id);if(!r||r.status!=="요청")return;r.status="거절";r.rejectedAt=new Date().toISOString();notify(r.team,"예산 요청 거절",`${weekLabelInfo(r.weekStart).label} 예산 요청이 거절되었습니다.`);saveState();showToast("예산 요청을 거절했습니다.",`${r.team} · ${weekLabelInfo(r.weekStart).label}`);renderApp()}
@@ -941,7 +986,7 @@ function calendarPage(){
 window.moveMonth=function(n){calendarCursor=new Date(calendarCursor.getFullYear(),calendarCursor.getMonth()+n,1);renderApp()}
 
 function weeklyCentral(){
- const info=weekLabelInfo(),requests=state.budgetRequests.filter(r=>r.weekStart===selectedWeekStart);return `<div class="page-head"><div><h1>주간예산</h1><div class="sub">${info.label} (${info.range})의 승인예산·미사용예산·예정지출·요청상태를 봅니다.</div></div></div><section class="section"><table><thead><tr><th>팀</th><th>승인예산</th><th>미사용예산</th><th>예정지출</th><th>승인 대기 요청</th></tr></thead><tbody>${["허슬","엘리븐","로아미"].map(t=>{const b=getWeekBudget(t),p=plansForWeek(t,"expense").reduce((a,x)=>a+x.amount,0),pending=requests.filter(r=>r.team===t&&r.status==="요청").reduce((a,r)=>a+r.requestedAmount,0);return `<tr><td><b style="color:${TEAM_META[t].color}">${t}</b></td><td>${won(b.approved)}</td><td>${won(b.unused)}</td><td class="money-expense">${won(p)}</td><td><b>${won(pending)}</b></td></tr>`}).join("")}</tbody></table></section><section class="section"><div class="section-title"><h2>예산 요청 상세</h2><div class="hint">홈에서도 승인 가능</div></div>${requests.length?`<table><thead><tr><th>팀</th><th>요청액</th><th>목표예산</th><th>메모</th><th>상태</th><th>관리</th></tr></thead><tbody>${requests.map(r=>`<tr><td><b style="color:${TEAM_META[r.team].color}">${r.team}</b></td><td>${won(r.requestedAmount)}</td><td>${won(r.targetAmount)}</td><td>${r.memo||"-"}</td><td><span class="pill ${r.status==="승인"?"ok":r.status==="거절"?"danger":"wait"}">${r.status}</span></td><td>${r.status==="요청"?`<button class="approve-btn" ${(Number(state.accounts["강신나"])||0)>=(Number(r.requestedAmount)||0)?"":"disabled"} onclick="approveBudgetRequest(${r.id})">${(Number(state.accounts["강신나"])||0)>=(Number(r.requestedAmount)||0)?"수락·지급":"잔액 부족"}</button>`:"-"}</td></tr>`).join("")}</tbody></table>`:`<div class="empty">이 주 예산 요청이 없습니다.</div>`}</section>`;
+ const info=weekLabelInfo(),requests=state.budgetRequests.filter(r=>r.weekStart===selectedWeekStart);return `<div class="page-head"><div><h1>주간예산</h1><div class="sub">${info.label} (${info.range})의 승인예산·미사용예산·예정지출·요청상태를 봅니다.</div></div></div><section class="section"><table><thead><tr><th>팀</th><th>승인예산</th><th>미사용예산</th><th>예정지출</th><th>승인 대기 요청</th></tr></thead><tbody>${["허슬","엘리븐","로아미"].map(t=>{const b=getWeekBudget(t),p=plansForWeek(t,"expense").reduce((a,x)=>a+x.amount,0),pending=requests.filter(r=>r.team===t&&r.status==="요청").reduce((a,r)=>a+r.requestedAmount,0);return `<tr><td><b style="color:${TEAM_META[t].color}">${t}</b></td><td>${won(b.approved)}</td><td>${won(b.unused)}</td><td class="money-expense">${won(p)}</td><td><b>${won(pending)}</b></td></tr>`}).join("")}</tbody></table></section><section class="section"><div class="section-title"><h2>예산 요청 상세</h2><div class="hint">홈에서도 승인 가능</div></div>${requests.length?`<table><thead><tr><th>팀</th><th>구분</th><th>요청액</th><th>기준</th><th>메모</th><th>상태</th><th>관리</th></tr></thead><tbody>${requests.map(r=>`<tr><td><b style="color:${TEAM_META[r.team].color}">${r.team}</b></td><td>${r.requestType==="추가"?"추가예산":"주간예산"}</td><td>${won(r.requestedAmount)}</td><td>${r.requestType==="추가"?"추가 요청":won(r.targetAmount)}</td><td>${r.memo||"-"}</td><td><span class="pill ${r.status==="승인"?"ok":r.status==="거절"?"danger":"wait"}">${r.status}</span></td><td>${r.status==="요청"?`<button class="approve-btn" ${(Number(state.accounts["강신나"])||0)>=(Number(r.requestedAmount)||0)?"":"disabled"} onclick="approveBudgetRequest(${r.id})">${(Number(state.accounts["강신나"])||0)>=(Number(r.requestedAmount)||0)?"수락·지급":"잔액 부족"}</button>`:"-"}</td></tr>`).join("")}</tbody></table>`:`<div class="empty">이 주 예산 요청이 없습니다.</div>`}</section>`;
 }
 function monthlyCentral(){
  const fixed=(state.fixedCosts||[]).reduce((a,b)=>a+(Number(b.amount)||0),0);
@@ -953,11 +998,12 @@ function monthlyCentral(){
 }
 function centralLedger(){
  const arr=[
-  ...state.sales.map(x=>({date:x.receivedAt||x.date,team:x.team,type:"매출",name:x.name,amount:x.amount,cls:"money-income",sign:"+"})),
-  ...state.expenses.map(x=>({date:x.date,team:x.team,type:"지출",name:x.name,amount:x.amount,cls:"money-expense",sign:"-"}))
+  ...state.sales.map(x=>({id:x.id,date:x.receivedAt||x.date,team:x.team,type:"매출",name:x.name,amount:x.amount,cls:"money-income",sign:"+",kind:"sale"})),
+  ...state.expenses.map(x=>({id:x.id,date:x.date,team:x.team,type:"지출",name:x.name,amount:x.amount,cls:"money-expense",sign:"-",kind:"expense"}))
  ].sort((a,b)=>b.date.localeCompare(a.date));
- return `<div class="page-head"><div><h1>매출·지출</h1><div class="sub">전체 팀의 실제 등록 내역입니다.</div></div></div><section class="section"><table><thead><tr><th>날짜</th><th>팀</th><th>구분</th><th>내용</th><th>금액</th></tr></thead><tbody>${arr.map(x=>`<tr><td>${x.date}</td><td><b style="color:${TEAM_META[x.team].color}">${x.team}</b></td><td>${x.type}</td><td>${x.name}</td><td class="${x.cls}">${x.sign}${won(x.amount)}</td></tr>`).join("")}</tbody></table></section>`;
+ return `<div class="page-head"><div><h1>매출·지출</h1><div class="sub">전체 실제 등록 내역입니다. 강신나 자체 지출은 여기서 수정·삭제할 수 있습니다.</div></div></div><section class="section"><table><thead><tr><th>날짜</th><th>팀</th><th>구분</th><th>내용</th><th>금액</th><th>관리</th></tr></thead><tbody>${arr.map(x=>`<tr><td>${x.date}</td><td><b style="color:${TEAM_META[x.team].color}">${x.team}</b></td><td>${x.type}</td><td>${x.name}</td><td class="${x.cls}">${x.sign}${won(x.amount)}</td><td>${x.team==="강신나"&&x.kind==="expense"?`<div style="display:flex;gap:6px"><button class="soft-btn" onclick="editExpense(${x.id})">수정</button><button class="soft-btn" onclick="deleteExpense(${x.id})">삭제</button></div>`:"-"}</td></tr>`).join("")}</tbody></table></section>`;
 }
+
 function accountsPage(){
  return `<div class="page-head"><div><h1>자금·계좌</h1><div class="sub">강신나 본계좌가 팀 예산 지급 원천입니다. 예산 수락 시 여기서 팀 계좌로 실제 자금이 이동합니다.</div></div></div>
  <section class="section"><div class="notice"><b>자동 반영 원칙</b><br>입금완료 매출은 해당 계좌에 더하고, 지출은 해당 계좌에서 뺍니다. 실제 통장과 차이가 있을 때만 ‘잔액 맞추기’를 사용합니다.</div>
@@ -1067,7 +1113,7 @@ function settingsPage(){
  const today=todayISO(),monthStart=today.slice(0,8)+"01";return `<div class="page-head"><div><h1>설정</h1><div class="sub">이용 내역 엑셀 다운로드와 운영 데이터 관리를 합니다.</div></div></div><section class="section"><div class="section-title"><h2>이용 내역 엑셀 다운로드</h2><div class="hint">기간과 팀·항목 범위를 골라 저장</div></div><div class="form-grid"><div class="field"><label>시작일</label><input id="exportStart" type="date" value="${monthStart}"></div><div class="field"><label>종료일</label><input id="exportEnd" type="date" value="${today}"></div><div class="field"><label>팀 범위</label><select id="exportTeam"><option value="전체">전체 팀</option><option>허슬</option><option>엘리븐</option><option>로아미</option><option>강신나</option></select></div><div class="field"><label>파일 형식</label><input value="엑셀 파일 (.xls)" disabled></div></div><div style="margin-top:12px"><div class="hint" style="margin-bottom:6px">포함할 내역</div><div class="export-checks"><label><input type="checkbox" id="exSales" checked> 매출</label><label><input type="checkbox" id="exExpenses" checked> 지출</label><label><input type="checkbox" id="exBudgets" checked> 예산요청</label><label><input type="checkbox" id="exTransfers" checked> 자금이동</label><label><input type="checkbox" id="exPlans" checked> 미리 신고</label></div></div><div class="form-actions"><button class="primary" onclick="exportUsageExcel()">엑셀 다운로드</button></div></section><section class="section"><div class="notice"><b>주의</b><br>전체 데이터 초기화는 계좌·매출·지출·예정내역·고정비·부채·주간예산을 모두 지웁니다.</div><button class="ghost" onclick="resetAllData()">전체 데이터 초기화</button></section>`;
 }
 function xmlEscape(v){return String(v??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
-window.exportUsageExcel=function(){const start=document.getElementById("exportStart").value,end=document.getElementById("exportEnd").value,team=document.getElementById("exportTeam").value;if(!start||!end||start>end)return alert("시작일과 종료일을 확인하세요.");const teamOk=t=>team==="전체"||t===team,rows=[];if(document.getElementById("exSales").checked)state.sales.forEach(x=>{const d=x.receivedAt||x.date;if(d>=start&&d<=end&&teamOk(x.team))rows.push([d,x.team,"매출",x.name,x.status,Number(x.amount)||0,x.account||"",""])});if(document.getElementById("exExpenses").checked)state.expenses.forEach(x=>{if(x.date>=start&&x.date<=end&&teamOk(x.team))rows.push([x.date,x.team,"지출",x.name,"완료",-(Number(x.amount)||0),x.account||"",`부가세 ${Number(x.vat)||0}`])});if(document.getElementById("exBudgets").checked)state.budgetRequests.forEach(x=>{if(x.weekStart>=start&&x.weekStart<=end&&teamOk(x.team))rows.push([x.weekStart,x.team,"예산요청",weekLabelInfo(x.weekStart).label,x.status,Number(x.status==="승인"?(x.approvedAmount||x.requestedAmount):x.requestedAmount)||0,"팀 예산",x.memo||""])});if(document.getElementById("exTransfers")?.checked)(state.transfers||[]).forEach(x=>{if(x.date>=start&&x.date<=end&&(team==="전체"||x.from===team||x.to===team))rows.push([x.date,`${x.from}→${x.to}`,x.type==="예산지급"?"예산지급":"자금이동",x.memo||"", "완료",Number(x.amount)||0,`${x.from} → ${x.to}`,x.budgetRequestId?`예산요청 #${x.budgetRequestId}`:""])});if(document.getElementById("exPlans").checked)state.plans.filter(x=>x.status==="planned").forEach(x=>{if(x.date>=start&&x.date<=end&&teamOk(x.team))rows.push([x.date,x.team,x.type==="expense"?"예정지출":"예정매출",x.name,"예정",x.type==="expense"?-(Number(x.amount)||0):(Number(x.amount)||0),"",x.isRecurring?"고정 자동등록":"미리 신고"])});rows.sort((a,b)=>String(a[0]).localeCompare(String(b[0]))||String(a[1]).localeCompare(String(b[1])));if(!rows.length)return alert("선택한 조건에 해당하는 내역이 없습니다.");const headers=["날짜","팀","구분","내용","상태","금액","계좌/반영","메모"],makeCell=(v,isNum=false)=>`<Cell><Data ss:Type="${isNum?"Number":"String"}">${xmlEscape(v)}</Data></Cell>`,xml=`<?xml version="1.0" encoding="UTF-8"?><?mso-application progid="Excel.Sheet"?><Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"><Worksheet ss:Name="이용내역"><Table><Row>${headers.map(h=>makeCell(h)).join("")}</Row>${rows.map(r=>`<Row>${r.map((v,i)=>makeCell(v,i===5)).join("")}</Row>`).join("")}</Table></Worksheet></Workbook>`,blob=new Blob(["\ufeff",xml],{type:"application/vnd.ms-excel;charset=utf-8"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=`강신나_이용내역_${start}_${end}.xls`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);showToast("엑셀 파일을 다운로드했습니다.",`${start} ~ ${end}`)}
+window.exportUsageExcel=function(){const start=document.getElementById("exportStart").value,end=document.getElementById("exportEnd").value,team=document.getElementById("exportTeam").value;if(!start||!end||start>end)return alert("시작일과 종료일을 확인하세요.");const teamOk=t=>team==="전체"||t===team,rows=[];if(document.getElementById("exSales").checked)state.sales.forEach(x=>{const d=x.receivedAt||x.date;if(d>=start&&d<=end&&teamOk(x.team))rows.push([d,x.team,"매출",x.name,x.status,Number(x.amount)||0,x.account||"",""])});if(document.getElementById("exExpenses").checked)state.expenses.forEach(x=>{if(x.date>=start&&x.date<=end&&teamOk(x.team))rows.push([x.date,x.team,"지출",x.name,"완료",-(Number(x.amount)||0),x.account||"",`부가세 ${Number(x.vat)||0}`])});if(document.getElementById("exBudgets").checked)state.budgetRequests.forEach(x=>{if(x.weekStart>=start&&x.weekStart<=end&&teamOk(x.team))rows.push([x.weekStart,x.team,x.requestType==="추가"?"추가예산요청":"주간예산요청",weekLabelInfo(x.weekStart).label,x.status,Number(x.status==="승인"?(x.approvedAmount||x.requestedAmount):x.requestedAmount)||0,"팀 예산",x.memo||""])});if(document.getElementById("exTransfers")?.checked)(state.transfers||[]).forEach(x=>{if(x.date>=start&&x.date<=end&&(team==="전체"||x.from===team||x.to===team))rows.push([x.date,`${x.from}→${x.to}`,x.type==="예산지급"?"예산지급":"자금이동",x.memo||"", "완료",Number(x.amount)||0,`${x.from} → ${x.to}`,x.budgetRequestId?`예산요청 #${x.budgetRequestId}`:""])});if(document.getElementById("exPlans").checked)state.plans.filter(x=>x.status==="planned").forEach(x=>{if(x.date>=start&&x.date<=end&&teamOk(x.team))rows.push([x.date,x.team,x.type==="expense"?"예정지출":"예정매출",x.name,"예정",x.type==="expense"?-(Number(x.amount)||0):(Number(x.amount)||0),"",x.isRecurring?"고정 자동등록":"미리 신고"])});rows.sort((a,b)=>String(a[0]).localeCompare(String(b[0]))||String(a[1]).localeCompare(String(b[1])));if(!rows.length)return alert("선택한 조건에 해당하는 내역이 없습니다.");const headers=["날짜","팀","구분","내용","상태","금액","계좌/반영","메모"],makeCell=(v,isNum=false)=>`<Cell><Data ss:Type="${isNum?"Number":"String"}">${xmlEscape(v)}</Data></Cell>`,xml=`<?xml version="1.0" encoding="UTF-8"?><?mso-application progid="Excel.Sheet"?><Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"><Worksheet ss:Name="이용내역"><Table><Row>${headers.map(h=>makeCell(h)).join("")}</Row>${rows.map(r=>`<Row>${r.map((v,i)=>makeCell(v,i===5)).join("")}</Row>`).join("")}</Table></Worksheet></Workbook>`,blob=new Blob(["\ufeff",xml],{type:"application/vnd.ms-excel;charset=utf-8"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=`강신나_이용내역_${start}_${end}.xls`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);showToast("엑셀 파일을 다운로드했습니다.",`${start} ~ ${end}`)}
 window.resetAllData=function(){
  openConfirm("전체 데이터 초기화","정말 모든 실사용 데이터를 초기화할까요? 이 작업은 되돌릴 수 없습니다.",()=>{
    state=seedState();saveState();renderApp();
@@ -1224,6 +1270,7 @@ function renderApp(){
  let html="";
  if(currentTeam==="강신나"){
   if(currentPage==="홈")html=centralHome();
+  else if(currentPage==="지출 등록")html=expensePage("강신나");
   else if(currentPage==="통합 캘린더")html=calendarPage();
   else if(currentPage==="주간예산")html=weeklyCentral();
   else if(currentPage==="월간예산")html=monthlyCentral();
