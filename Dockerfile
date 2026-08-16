@@ -1,6 +1,8 @@
 FROM node:22-alpine
 WORKDIR /app
-COPY server.js package.json ./
+COPY package.json ./
+RUN npm install --omit=dev --no-audit --no-fund
+COPY server.js ./
 COPY public ./public
 RUN mkdir -p /app/data
 ENV PORT=3000

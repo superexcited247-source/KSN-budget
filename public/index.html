@@ -2,9 +2,16 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#23272f">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="강신나 자금관리">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/icon-192.png">
 <title>강신나 자금관리</title>
-<!-- build: v9 ranged calendar schedules -->
+<!-- build: v11 mobile responsive + PWA push -->
 <style>
 :root{
   --bg:#f6f7f9; --panel:#fff; --text:#17191d; --muted:#6b7280; --line:#e5e7eb;
@@ -16,8 +23,9 @@
   --radius:17px; --shadow:0 12px 34px rgba(0,0,0,.07);
 }
 *{box-sizing:border-box}
-body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Pretendard","Noto Sans KR","Apple SD Gothic Neo",sans-serif;background:var(--bg);color:var(--text)}
-button,input,select,textarea{font:inherit} button{cursor:pointer}.hidden{display:none!important}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%;width:100%;overflow-x:hidden}
+body{margin:0;min-width:0;width:100%;overflow-x:hidden;font-family:-apple-system,BlinkMacSystemFont,"Pretendard","Noto Sans KR","Apple SD Gothic Neo",sans-serif;background:var(--bg);color:var(--text)}
+button,input,select,textarea{font:inherit;max-width:100%} button{cursor:pointer}.hidden{display:none!important}
 .center{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
 .panel{background:var(--panel);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow)}
 .gate{width:min(450px,100%);padding:32px}.eyebrow{font-size:13px;color:var(--muted);margin-bottom:7px}
@@ -50,13 +58,13 @@ h1,h2,h3,p{margin-top:0}.gate h1{font-size:28px;margin-bottom:8px}.gate p{color:
 .top-actions{display:flex;align-items:center;gap:8px}.notify-wrap{position:relative}.notify-btn{position:relative;width:42px;height:42px;border:1px solid var(--line);border-radius:12px;background:#fff;font-size:18px}
 .badge{position:absolute;right:-5px;top:-6px;min-width:19px;height:19px;padding:0 5px;border-radius:999px;background:#b42318;color:#fff;font-size:11px;font-weight:900;display:grid;place-items:center;border:2px solid #fff}
 .notify-panel{position:absolute;right:0;top:49px;width:min(400px,calc(100vw - 26px));background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:0 18px 60px rgba(0,0,0,.16);padding:10px;z-index:50}
-.notify-head{display:flex;justify-content:space-between;padding:8px 8px 10px;font-weight:900}.notify-item{border-top:1px solid var(--line);padding:11px 9px}.notify-item strong{display:block;font-size:14px;margin-bottom:4px}.notify-item p{margin:0;color:var(--muted);font-size:13px;line-height:1.5}.notify-time{font-size:11px;color:#9ca3af;margin-top:5px}
+.notify-head{display:flex;justify-content:space-between;padding:8px 8px 10px;font-weight:900}.device-tools{margin:0 4px 8px;padding:10px;border:1px solid var(--line);border-radius:12px;background:#fafafa}.device-tools-title{font-size:12px;font-weight:900;margin-bottom:7px}.device-tools-row{display:flex;gap:7px;flex-wrap:wrap}.device-tools-row button{flex:1 1 130px;min-height:38px}.push-state{font-size:11px;color:var(--muted);line-height:1.4;margin-top:7px}.notify-item{border-top:1px solid var(--line);padding:11px 9px}.notify-item strong{display:block;font-size:14px;margin-bottom:4px}.notify-item p{margin:0;color:var(--muted);font-size:13px;line-height:1.5}.notify-time{font-size:11px;color:#9ca3af;margin-top:5px}
 .layout{max-width:1280px;margin:auto;display:grid;grid-template-columns:220px 1fr;gap:20px;padding:20px}
 .sidebar{position:sticky;top:78px;align-self:start;height:calc(100vh - 98px);background:#fff;border:1px solid var(--line);border-radius:17px;padding:10px;display:flex;flex-direction:column}
 .nav-main{display:flex;flex-direction:column}.nav-bottom{margin-top:auto;border-top:1px solid var(--line);padding-top:8px}
 .nav-btn{width:100%;border:0;background:transparent;border-radius:11px;text-align:left;padding:11px 12px;color:#40444c;font-weight:800;margin:2px 0}
 .nav-btn.active{background:var(--team-soft,var(--central-soft));color:#111}.nav-btn.debt{font-weight:900}
-.content{min-width:0}.page-head{display:flex;justify-content:space-between;align-items:end;gap:14px;margin:3px 0 16px}.page-head h1{font-size:29px;margin-bottom:4px}.sub{color:var(--muted);font-size:13px}
+.content{min-width:0;max-width:100%;overflow-x:hidden}.page-head{display:flex;justify-content:space-between;align-items:end;gap:14px;margin:3px 0 16px}.page-head h1{font-size:29px;margin-bottom:4px}.sub{color:var(--muted);font-size:13px}
 .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.stat{background:#fff;border:1px solid var(--line);border-radius:16px;padding:17px}.stat .label{font-size:13px;color:var(--muted);margin-bottom:9px}.stat .value{font-size:27px;font-weight:900;letter-spacing:-.5px}.stat .small{font-size:12px;color:var(--muted);margin-top:7px}
 .section{background:#fff;border:1px solid var(--line);border-radius:17px;padding:19px;margin-top:15px}.section-title{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:13px}.section-title h2{font-size:19px;margin:0}.hint{font-size:12px;color:var(--muted)}
 .quick-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:11px}.quick{border:1px solid var(--line);border-radius:15px;background:#fff;padding:16px;text-align:left;min-height:92px}.quick:hover{border-color:#cbd5e1}.quick strong{display:block;font-size:17px;margin-bottom:5px}.quick span{font-size:12px;color:var(--muted)}
@@ -73,7 +81,7 @@ table{width:100%;border-collapse:collapse}th,td{padding:11px 9px;border-bottom:1
 .notice{background:#fafafa;border:1px solid var(--line);border-radius:13px;padding:13px 14px;color:#555;font-size:13px;line-height:1.55;margin-bottom:13px}
 .plan-list{display:grid;gap:8px}.plan-item{display:grid;grid-template-columns:92px 1fr auto;gap:10px;align-items:center;border:1px solid var(--line);border-left:5px solid var(--team-color,var(--central));border-radius:12px;padding:10px 11px;background:#fff}.plan-date{font-weight:900;font-size:13px}.plan-main strong{display:block;font-size:13px}.plan-main span{font-size:12px;color:var(--muted)}.money-expense{color:var(--danger);font-weight:900}.money-income{color:var(--income);font-weight:900}
 .calendar-tools{display:flex;align-items:center;gap:8px}.calendar-title{font-weight:900;min-width:110px;text-align:center}
-.calendar{display:grid;grid-template-columns:repeat(7,1fr);border-top:1px solid var(--line);border-left:1px solid var(--line)}
+.calendar-scroll{width:100%;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:10px}.calendar{display:grid;grid-template-columns:repeat(7,1fr);border-top:1px solid var(--line);border-left:1px solid var(--line)}
 .cal-head{padding:8px;text-align:center;font-size:12px;font-weight:800;color:var(--muted);background:#fafafa;border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
 .day{min-height:126px;padding:7px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);background:#fff}.day.muted{background:#fbfbfc;color:#a0a5ad}.day-num{font-size:12px;font-weight:900;margin-bottom:5px}.today .day-num{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--dark);color:#fff}
 .cal-event{display:block;width:100%;border-radius:7px;padding:5px 6px;margin:4px 0;font-size:11px;font-weight:900;line-height:1.25;border:1px solid transparent;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.cal-event.plan{border-style:dashed}.team-hustle{background:var(--hustle-soft);border-color:var(--hustle)}.team-eleven{background:var(--eleven-soft);border-color:var(--eleven)}.team-loami{background:var(--loami-soft);border-color:var(--loami)}.team-central{background:var(--central-soft);border-color:var(--central)}
@@ -91,13 +99,18 @@ table{width:100%;border-collapse:collapse}th,td{padding:11px 9px;border-bottom:1
  .mobile-nav button{border:0;background:transparent;padding:8px 2px;font-size:11px;font-weight:800;color:#555}.mobile-nav button.active{color:#111;background:var(--team-soft,var(--central-soft));border-radius:9px}
 }
 @media(max-width:650px){
- .week-switcher{gap:4px;padding:4px}.week-switcher button{width:31px;height:31px}.week-info strong{font-size:13px}.week-info small{font-size:10px}.week-switcher .week-now{padding:0 7px}
- .center{padding:14px}.gate{padding:25px 19px}.pwrow{flex-direction:column}.pwrow .primary{padding:14px}.team-grid{grid-template-columns:1fr}.team-card{min-height:118px}
- .select-head h1{font-size:28px}.brand span:last-child{display:none}.topbar-inner{padding:10px 12px}.page-head{align-items:flex-start;flex-direction:column}.page-head h1{font-size:25px}
- .cards{grid-template-columns:1fr}.quick-grid,.form-grid,.debt-grid{grid-template-columns:1fr}.stat .value{font-size:24px}.section{padding:15px}.plan-item{grid-template-columns:80px 1fr}.plan-item .soft-btn{grid-column:1/-1}
- .calendar{font-size:10px}.day{min-height:100px;padding:4px}.cal-event{font-size:9px;padding:4px}.calendar-tools{width:100%;justify-content:space-between}
- table{display:block;overflow:auto;white-space:nowrap}
+ body{padding-bottom:env(safe-area-inset-bottom)}
+ .topbar-inner{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;padding:8px 10px}.brand{min-width:0}.brand-dot{width:34px;height:34px;border-radius:10px;font-size:11px}.brand span:last-child{display:block;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px}.top-actions{gap:5px}.notify-btn{width:38px;height:38px;border-radius:10px}.top-actions .ghost{padding:8px 9px;font-size:11px;white-space:nowrap}
+ .week-switcher{grid-column:1/-1;order:initial;width:100%;gap:4px;padding:4px;min-width:0}.week-switcher button{width:32px;height:32px;flex:0 0 auto}.week-info{min-width:0;flex:1}.week-info strong{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.week-info small{font-size:9px}.week-switcher .week-now{padding:0 7px;font-size:10px}
+ .layout{padding:10px 10px calc(82px + env(safe-area-inset-bottom));gap:10px}.content{width:100%;min-width:0;overflow-x:hidden}.center{padding:12px}.gate{padding:24px 17px}.pwrow{flex-direction:column}.pwrow .primary{padding:14px}.pwrow input,.field input,.field select,.field textarea{font-size:16px}.team-grid{grid-template-columns:1fr}.team-card{min-height:110px;padding:19px}.team-card strong{font-size:24px}.team-card span{font-size:13px}
+ .select-head h1{font-size:27px}.page-head{align-items:flex-start;flex-direction:column;margin-bottom:11px}.page-head h1{font-size:24px}.sub{font-size:12px}.cards{grid-template-columns:1fr}.quick-grid,.form-grid,.debt-grid{grid-template-columns:1fr}.stat{padding:14px}.stat .value{font-size:clamp(21px,7vw,25px);overflow-wrap:anywhere}.section{padding:13px;margin-top:11px;border-radius:14px}.section-title{align-items:flex-start;flex-wrap:wrap}.section-title h2{font-size:18px}.quick{min-height:78px;padding:14px}.quick strong{font-size:16px}.plan-item{grid-template-columns:72px minmax(0,1fr);gap:7px}.plan-item .soft-btn{grid-column:1/-1}
+ .calendar-scroll{margin:0 -13px;width:calc(100% + 26px);padding:0 13px}.calendar{min-width:560px;font-size:10px}.day{min-height:92px;padding:4px}.day-num{font-size:11px}.cal-event,.cal-note,.cal-schedule{font-size:8.5px;padding:3px 4px}.calendar-tools{width:100%;justify-content:space-between}.calendar-title{min-width:90px}.calendar-click-hint{font-size:10px}.forecast-head{align-items:flex-start;flex-direction:column}.forecast-head .soft-btn{width:100%}.forecast-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.forecast-card{padding:9px}.forecast-card .amount{font-size:15px}.forecast-card.total{grid-column:1/-1}
+ .modal-back{align-items:end;padding:0}.modal{width:100%;max-height:90vh;overflow-y:auto;border-radius:20px 20px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom))}.form-actions{position:sticky;bottom:0;background:#fff;padding-top:8px}.form-actions button{min-height:42px}
+ .notify-panel{position:fixed;top:58px;right:10px;left:10px;width:auto;max-height:72vh;overflow:auto}.device-tools-row{flex-direction:column}.device-tools-row button{flex:auto;width:100%}
+ table{display:block;width:100%;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;white-space:nowrap}.request-actions{flex-wrap:wrap}.request-actions button{flex:1 1 110px}.row{align-items:flex-start}.row strong{text-align:right;overflow-wrap:anywhere}
+ .mobile-nav{overflow:hidden}.mobile-nav button{min-width:0;font-size:10px;line-height:1.15;padding:8px 1px;white-space:normal;word-break:keep-all}
 }
+@media(max-width:390px){.top-actions .ghost{padding:7px 6px;font-size:10px}.brand span:last-child{font-size:12px}.week-info strong{font-size:11px}.week-switcher .week-now{padding:0 5px}.layout{padding-left:8px;padding-right:8px}.section{padding:11px}.calendar-scroll{margin-left:-11px;margin-right:-11px;width:calc(100% + 22px);padding-left:11px;padding-right:11px}}
 .approve-btn:disabled{background:#d1d5db!important;color:#6b7280!important;cursor:not-allowed}.fund-warning{margin-top:8px;padding:8px 10px;border-radius:9px;background:#fff1f2;color:#b42318;font-size:12px;font-weight:800}</style>
 </head>
 <body>
@@ -204,6 +217,10 @@ let selectedPlanId=null;
 let saveTimer=null;
 let saveInFlight=false;
 let saveQueued=false;
+let deferredInstallPrompt=null;
+let pushUiState={supported:false,permission:"default",subscribed:false,serverEnabled:false,standalone:false,message:"확인 중"};
+window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredInstallPrompt=e;updateDeviceToolsUi()});
+window.addEventListener("appinstalled",()=>{deferredInstallPrompt=null;pushUiState.standalone=true;updateDeviceToolsUi()});
 
 function normalizeState(s){
  let x=s&&typeof s==="object"?s:seedState();
@@ -399,6 +416,55 @@ function plansForWeek(team,type,weekStart=selectedWeekStart){const s=weekStart,e
 function dateLabel(s){const d=new Date(s+"T00:00:00");return `${d.getMonth()+1}월 ${d.getDate()}일`}
 function stat(label,value,small=""){return `<div class="stat"><div class="label">${label}</div><div class="value">${value}</div>${small?`<div class="small">${small}</div>`:""}</div>`}
 
+
+function isIOSDevice(){return /iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1)}
+function isStandaloneMode(){return window.matchMedia?.("(display-mode: standalone)").matches===true||window.navigator.standalone===true}
+function base64UrlToUint8Array(base64String){const padding="=".repeat((4-base64String.length%4)%4),base64=(base64String+padding).replace(/-/g,"+").replace(/_/g,"/");const raw=atob(base64);return Uint8Array.from([...raw].map(c=>c.charCodeAt(0)))}
+async function ensureServiceWorker(){if(!("serviceWorker" in navigator))throw new Error("service_worker_unsupported");const reg=await navigator.serviceWorker.register("/sw.js",{scope:"/"});await navigator.serviceWorker.ready;return reg}
+async function refreshPushStatus(){
+ pushUiState.standalone=isStandaloneMode();
+ pushUiState.permission=("Notification" in window)?Notification.permission:"unsupported";
+ pushUiState.supported=("serviceWorker" in navigator)&&("PushManager" in window)&&("Notification" in window);
+ if(!pushUiState.supported){pushUiState.message="이 브라우저는 모바일 푸시 알림을 지원하지 않습니다.";updateDeviceToolsUi();return}
+ try{
+   const cfg=await fetch("/api/push/config",{cache:"no-store"});
+   if(!cfg.ok)throw new Error("config");
+   const j=await cfg.json();pushUiState.serverEnabled=!!j.enabled;
+   const reg=await ensureServiceWorker();const sub=await reg.pushManager.getSubscription();pushUiState.subscribed=!!sub;
+   if(pushUiState.subscribed)pushUiState.message=`${currentTeam||"현재 팀"} 변경사항 알림이 이 기기에 연결되어 있습니다.`;
+   else if(isIOSDevice()&&!pushUiState.standalone)pushUiState.message="iPhone/iPad는 먼저 홈 화면에 추가한 앱으로 열어야 알림을 켤 수 있습니다.";
+   else pushUiState.message="알림을 켜면 현재 선택한 팀의 주요 변경사항을 휴대폰으로 받을 수 있습니다.";
+ }catch(e){pushUiState.serverEnabled=false;pushUiState.message="푸시 알림 서버 설정을 확인할 수 없습니다."}
+ updateDeviceToolsUi();
+}
+function updateDeviceToolsUi(){
+ const st=document.getElementById("pushStateText"),btn=document.getElementById("pushToggleBtn"),install=document.getElementById("installAppBtn");
+ if(st)st.textContent=pushUiState.message;
+ if(btn){btn.textContent=pushUiState.subscribed?"모바일 알림 끄기":"모바일 알림 켜기";btn.disabled=!pushUiState.supported||!pushUiState.serverEnabled}
+ if(install){install.textContent=isStandaloneMode()?"앱으로 실행 중":(deferredInstallPrompt?"앱으로 설치":"홈 화면 추가 안내");install.disabled=isStandaloneMode()}
+}
+window.installAppShortcut=async function(){
+ if(isStandaloneMode())return showToast("이미 앱으로 실행 중입니다.");
+ if(deferredInstallPrompt){deferredInstallPrompt.prompt();await deferredInstallPrompt.userChoice;deferredInstallPrompt=null;return refreshPushStatus()}
+ if(isIOSDevice())return alert("iPhone/iPad: Safari의 공유 버튼을 누른 뒤 ‘홈 화면에 추가’를 선택하세요. 추가된 강신나 앱을 다시 열고 모바일 알림을 켜면 됩니다.");
+ alert("브라우저 메뉴에서 ‘앱 설치’ 또는 ‘홈 화면에 추가’를 선택하세요.");
+}
+async function postPushSubscription(sub){const r=await fetch("/api/push/subscribe",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({subscription:sub.toJSON(),team:currentTeam})});if(!r.ok)throw new Error("subscribe_failed")}
+window.togglePushNotifications=async function(){
+ try{
+   const reg=await ensureServiceWorker();let sub=await reg.pushManager.getSubscription();
+   if(sub){await fetch("/api/push/unsubscribe",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({endpoint:sub.endpoint})});await sub.unsubscribe();pushUiState.subscribed=false;pushUiState.message="모바일 알림이 꺼졌습니다.";showToast("모바일 알림을 껐습니다.");return updateDeviceToolsUi()}
+   if(isIOSDevice()&&!isStandaloneMode())return alert("iPhone/iPad에서는 Safari 공유 → 홈 화면에 추가 후, 홈 화면의 강신나 앱으로 열어서 알림을 켜주세요.");
+   const permission=await Notification.requestPermission();pushUiState.permission=permission;if(permission!=="granted")return showToast("알림 권한이 허용되지 않았습니다.","휴대폰 설정에서 알림 권한을 확인해주세요.","error");
+   const cfg=await fetch("/api/push/config",{cache:"no-store"}).then(r=>r.json());if(!cfg.enabled||!cfg.publicKey)throw new Error("push_disabled");
+   sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:base64UrlToUint8Array(cfg.publicKey)});await postPushSubscription(sub);pushUiState.subscribed=true;pushUiState.message=`${currentTeam} 변경사항 알림이 이 기기에 연결되었습니다.`;showToast("모바일 알림을 켰습니다.",`${currentTeam} 알림을 받습니다.`);updateDeviceToolsUi();
+ }catch(e){console.error(e);showToast("모바일 알림 설정에 실패했습니다.","앱 설치 상태와 알림 권한을 확인해주세요.","error");refreshPushStatus()}
+}
+async function syncExistingPushTeam(){
+ if(!currentTeam||!("serviceWorker" in navigator)||!("PushManager" in window))return;
+ try{const reg=await ensureServiceWorker(),sub=await reg.pushManager.getSubscription();if(sub)await postPushSubscription(sub)}catch(e){console.error(e)}
+}
+
 async function unlock(){
  const password=document.getElementById("pw").value;
  const btn=document.getElementById("pwBtn");btn.disabled=true;
@@ -410,10 +476,10 @@ async function unlock(){
 }
 document.getElementById("pwBtn").onclick=unlock;
 document.getElementById("pw").onkeydown=e=>{if(e.key==="Enter")unlock()};
-document.querySelectorAll(".team-card").forEach(b=>b.onclick=()=>{currentTeam=b.dataset.team;currentPage="홈";teamStyle(currentTeam);sessionStorage.setItem("currentTeam",currentTeam);showOnly("mainScreen");renderApp()});
+document.querySelectorAll(".team-card").forEach(b=>b.onclick=()=>{currentTeam=b.dataset.team;currentPage="홈";teamStyle(currentTeam);sessionStorage.setItem("currentTeam",currentTeam);showOnly("mainScreen");renderApp();syncExistingPushTeam();});
 document.getElementById("switchTeam").onclick=()=>{currentTeam=null;sessionStorage.removeItem("currentTeam");showOnly("teamScreen")};
 document.getElementById("lockBtn").onclick=async()=>{try{await fetch('/api/logout',{method:'POST'})}catch(e){}sessionStorage.clear();currentTeam=null;showOnly("passwordScreen")};
-document.getElementById("notifyBtn").onclick=()=>document.getElementById("notifyPanel").classList.toggle("hidden");
+document.getElementById("notifyBtn").onclick=()=>{const p=document.getElementById("notifyPanel"),opening=p.classList.contains("hidden");p.classList.toggle("hidden");if(opening)refreshPushStatus()};
 document.addEventListener("click",e=>{if(!e.target.closest(".notify-wrap"))document.getElementById("notifyPanel")?.classList.add("hidden")});
 
 function menus(team){
@@ -431,7 +497,7 @@ function renderNav(){
 }
 function renderNotifications(){
  const arr=state.notifications[currentTeam]||[];const count=document.getElementById("notifyCount");count.textContent=arr.length;count.classList.toggle("hidden",arr.length===0);
- document.getElementById("notifyPanel").innerHTML=`<div class="notify-head"><span>${currentTeam} 알림</span><span class="sub">${arr.length}건</span></div>${arr.length?arr.slice(0,8).map(n=>`<div class="notify-item"><strong>${n.title}</strong><p>${n.text}</p><div class="notify-time">${n.time}</div></div>`).join(""):`<div class="empty">새 알림이 없습니다.</div>`}`;
+ document.getElementById("notifyPanel").innerHTML=`<div class="notify-head"><span>${currentTeam} 알림</span><span class="sub">${arr.length}건</span></div><div class="device-tools"><div class="device-tools-title">휴대폰 앱 · 알림</div><div class="device-tools-row"><button class="soft-btn" id="installAppBtn" onclick="installAppShortcut()">홈 화면 추가 안내</button><button class="primary" id="pushToggleBtn" onclick="togglePushNotifications()">모바일 알림 켜기</button></div><div class="push-state" id="pushStateText">알림 상태를 확인 중입니다.</div></div>${arr.length?arr.slice(0,8).map(n=>`<div class="notify-item"><strong>${n.title}</strong><p>${n.text}</p><div class="notify-time">${n.time}</div></div>`).join(""):`<div class="empty">새 알림이 없습니다.</div>`}`;updateDeviceToolsUi();
 }
 
 function planPanel(team,type){
@@ -978,7 +1044,7 @@ function renderCalendarSection(){
    cells.push(`<div class="day ${!curMonth?"muted":""} ${ds===todayISO()?"today":""} ${ds===selectedCalendarDate?"selected-day":""}" data-calendar-date="${ds}" onclick="calendarDayClick('${ds}')" ondblclick="calendarDayDoubleClick('${ds}')" oncontextmenu="return false"><div class="day-num">${day}</div>${ev.map(e=>`<div class="cal-event ${(TEAM_META[e.team]||TEAM_META["강신나"]).class} ${e.planned?"plan":""}" title="${safeText(e.name)}"><span style="color:${e.type==="expense"?"#c62828":"#176b42"}">${e.team} ${e.type==="expense"?"-":"+"}${shortMoney(e.amount)}</span>${e.isRecurring?" 고정":(e.planned?" 예정":"")}</div>`).join("")}${schedules.map(it=>`<div class="cal-schedule" title="${safeText(it.text)} · ${it.startDate}~${it.endDate}">일정 · ${safeText(it.text.split(/\n/)[0])}</div>`).join("")}${memo?`<div class="cal-note" title="${safeText(memo)}">메모 · ${note}</div>`:""}</div>`);
  }
  const forecast=expectedBalancesAt(selectedCalendarDate),past=selectedCalendarDate<todayISO();
- return `<section class="section"><div class="section-title"><div><h2>통합 캘린더</h2><div class="legend" style="margin-top:8px"><span><i style="background:var(--hustle)"></i>허슬</span><span><i style="background:var(--eleven)"></i>엘리븐</span><span><i style="background:var(--loami)"></i>로아미</span></div></div><div class="calendar-tools"><button class="ghost" onclick="moveMonth(-1)">‹</button><div class="calendar-title">${y}년 ${m+1}월</div><button class="ghost" onclick="moveMonth(1)">›</button></div></div><div class="hint" style="margin-bottom:10px">한 번 누르기 = 날짜 선택·예상잔고 확인 · PC 더블클릭 / 휴대폰 길게 누르기 = 메모·기간 일정 등록 · 일정은 시작일~종료일 전체에 표시 · 빨강 = 지출 · 초록 = 매출 · 점선 = 미리 신고 · 고정 = 자동생성</div><div class="calendar">${["일","월","화","수","목","금","토"].map(d=>`<div class="cal-head">${d}</div>`).join("")}${cells.join("")}</div><div class="balance-forecast"><div class="forecast-head"><div><h3>${dateLabel(selectedCalendarDate)} 예상 계좌잔고</h3><div class="calendar-click-hint">${past?"과거 날짜는 현재 잔액에서 실제 등록내역을 역산한 참고값입니다.":"현재 실제 잔액에 선택 날짜까지의 미리 신고 예정 매출·지출을 반영한 값입니다."}</div></div><button class="soft-btn" onclick="openCalendarDay('${selectedCalendarDate}')">메모·일정 등록</button></div><div class="forecast-grid">${["강신나","허슬","엘리븐","로아미"].map(t=>`<div class="forecast-card"><div class="name" style="color:${TEAM_META[t].color}">${t}</div><div class="amount">${won(forecast[t])}</div></div>`).join("")}<div class="forecast-card total"><div class="name">통합 예상잔고</div><div class="amount">${won(forecast["통합"])}</div></div></div></div></section>`;
+ return `<section class="section"><div class="section-title"><div><h2>통합 캘린더</h2><div class="legend" style="margin-top:8px"><span><i style="background:var(--hustle)"></i>허슬</span><span><i style="background:var(--eleven)"></i>엘리븐</span><span><i style="background:var(--loami)"></i>로아미</span></div></div><div class="calendar-tools"><button class="ghost" onclick="moveMonth(-1)">‹</button><div class="calendar-title">${y}년 ${m+1}월</div><button class="ghost" onclick="moveMonth(1)">›</button></div></div><div class="hint" style="margin-bottom:10px">한 번 누르기 = 날짜 선택·예상잔고 확인 · PC 더블클릭 / 휴대폰 길게 누르기 = 메모·기간 일정 등록 · 일정은 시작일~종료일 전체에 표시 · 빨강 = 지출 · 초록 = 매출 · 점선 = 미리 신고 · 고정 = 자동생성</div><div class="calendar-scroll"><div class="calendar">${["일","월","화","수","목","금","토"].map(d=>`<div class="cal-head">${d}</div>`).join("")}${cells.join("")}</div></div><div class="balance-forecast"><div class="forecast-head"><div><h3>${dateLabel(selectedCalendarDate)} 예상 계좌잔고</h3><div class="calendar-click-hint">${past?"과거 날짜는 현재 잔액에서 실제 등록내역을 역산한 참고값입니다.":"현재 실제 잔액에 선택 날짜까지의 미리 신고 예정 매출·지출을 반영한 값입니다."}</div></div><button class="soft-btn" onclick="openCalendarDay('${selectedCalendarDate}')">메모·일정 등록</button></div><div class="forecast-grid">${["강신나","허슬","엘리븐","로아미"].map(t=>`<div class="forecast-card"><div class="name" style="color:${TEAM_META[t].color}">${t}</div><div class="amount">${won(forecast[t])}</div></div>`).join("")}<div class="forecast-card total"><div class="name">통합 예상잔고</div><div class="amount">${won(forecast["통합"])}</div></div></div></div></section>`;
 }
 function calendarPage(){
  return `<div class="page-head"><div><h1>통합 캘린더</h1><div class="sub">각 팀의 실제 매출·지출과 미리 신고된 예정 내역을 일정처럼 확인합니다.</div></div></div>${renderCalendarSection()}`;
@@ -1296,14 +1362,15 @@ function renderApp(){
 }
 
 (async function init(){
- try{
+ try{await ensureServiceWorker().catch(()=>null);
+ 
    const session=await fetch('/api/session',{cache:'no-store'});
    const info=await session.json();
    if(info.authenticated){
      await loadRemoteState();
      {const savedWeek=sessionStorage.getItem("selectedWeekStart");if(savedWeek){const sd=new Date(savedWeek+"T00:00:00");selectedWeekStart=sd.getDay()===6?addDaysISO(savedWeek,1):weekStartISO(savedWeek)}else selectedWeekStart=weekStartISO(todayISO());sessionStorage.setItem("selectedWeekStart",selectedWeekStart);syncBudgetMirror();}
      const saved=sessionStorage.getItem("currentTeam");
-     if(saved){currentTeam=saved;teamStyle(currentTeam);showOnly("mainScreen");renderApp()}else showOnly("teamScreen");
+     if(saved){currentTeam=saved;teamStyle(currentTeam);showOnly("mainScreen");renderApp();syncExistingPushTeam()}else showOnly("teamScreen");
    }else showOnly("passwordScreen");
  }catch(e){showOnly("passwordScreen");document.getElementById("pwErr").textContent="서버 연결을 확인하세요.";}
  setInterval(syncRemoteState,5000);
