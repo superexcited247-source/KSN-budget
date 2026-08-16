@@ -11,7 +11,7 @@
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="apple-touch-icon" href="/icon-192.png">
 <title>강신나 자금관리</title>
-<!-- build: v12 budget-cash reconciliation + mobile PWA push -->
+<!-- build: v13 ledger date/type filters + v12 budget-cash reconciliation + mobile PWA push -->
 <style>
 :root{
   --bg:#f6f7f9; --panel:#fff; --text:#17191d; --muted:#6b7280; --line:#e5e7eb;
@@ -37,7 +37,7 @@ h1,h2,h3,p{margin-top:0}.gate h1{font-size:28px;margin-bottom:8px}.gate p{color:
 .team-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
 .team-card{position:relative;overflow:hidden;min-height:165px;border:1px solid var(--line);background:#fff;border-radius:20px;padding:24px;text-align:left;box-shadow:0 5px 20px rgba(0,0,0,.035);transition:.15s}
 .team-card:hover{transform:translateY(-2px);box-shadow:var(--shadow)}.team-card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:7px;background:var(--team-color,var(--central))}
-.team-card strong{display:block;font-size:28px;margin-bottom:7px}.team-card span{font-size:14px;color:var(--muted)}
+.team-card strong{display:block;font-size:28px;margin-bottom:7px}.team-card span{font-size:14px;color:var(--muted)}.mes-entry{width:100%;margin-top:16px;border:1px solid #d7dde1;background:#10212a;color:#fff;border-radius:18px;padding:18px 22px;display:flex;align-items:center;justify-content:space-between;gap:16px;text-align:left;box-shadow:0 6px 20px rgba(16,33,42,.08)}.mes-entry:hover{transform:translateY(-1px)}.mes-entry strong{display:block;font-size:19px}.mes-entry span{display:block;font-size:12px;color:#b9c9cf;margin-top:4px}.mes-entry b{font-size:13px;white-space:nowrap;color:#fff}
 .topbar{position:sticky;top:0;z-index:30;background:rgba(246,247,249,.94);backdrop-filter:blur(10px);border-bottom:1px solid rgba(229,231,235,.9)}
 .topbar-inner{max-width:1280px;margin:auto;padding:12px 20px;display:flex;justify-content:space-between;align-items:center;gap:12px}
 .brand{display:flex;align-items:center;gap:10px;font-weight:900}.brand-dot{width:38px;height:38px;border-radius:12px;background:var(--team-color,var(--central));color:#fff;display:grid;place-items:center;font-size:13px}
@@ -102,7 +102,7 @@ table{width:100%;border-collapse:collapse}th,td{padding:11px 9px;border-bottom:1
  body{padding-bottom:env(safe-area-inset-bottom)}
  .topbar-inner{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;padding:8px 10px}.brand{min-width:0}.brand-dot{width:34px;height:34px;border-radius:10px;font-size:11px}.brand span:last-child{display:block;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px}.top-actions{gap:5px}.notify-btn{width:38px;height:38px;border-radius:10px}.top-actions .ghost{padding:8px 9px;font-size:11px;white-space:nowrap}
  .week-switcher{grid-column:1/-1;order:initial;width:100%;gap:4px;padding:4px;min-width:0}.week-switcher button{width:32px;height:32px;flex:0 0 auto}.week-info{min-width:0;flex:1}.week-info strong{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.week-info small{font-size:9px}.week-switcher .week-now{padding:0 7px;font-size:10px}
- .layout{padding:10px 10px calc(82px + env(safe-area-inset-bottom));gap:10px}.content{width:100%;min-width:0;overflow-x:hidden}.center{padding:12px}.gate{padding:24px 17px}.pwrow{flex-direction:column}.pwrow .primary{padding:14px}.pwrow input,.field input,.field select,.field textarea{font-size:16px}.team-grid{grid-template-columns:1fr}.team-card{min-height:110px;padding:19px}.team-card strong{font-size:24px}.team-card span{font-size:13px}
+ .layout{padding:10px 10px calc(82px + env(safe-area-inset-bottom));gap:10px}.content{width:100%;min-width:0;overflow-x:hidden}.center{padding:12px}.gate{padding:24px 17px}.pwrow{flex-direction:column}.pwrow .primary{padding:14px}.pwrow input,.field input,.field select,.field textarea{font-size:16px}.team-grid{grid-template-columns:1fr}.team-card{min-height:110px;padding:19px}.team-card strong{font-size:24px}.team-card span{font-size:13px}.mes-entry{padding:16px 18px}.mes-entry strong{font-size:18px}.mes-entry b{font-size:12px}
  .select-head h1{font-size:27px}.page-head{align-items:flex-start;flex-direction:column;margin-bottom:11px}.page-head h1{font-size:24px}.sub{font-size:12px}.cards{grid-template-columns:1fr}.quick-grid,.form-grid,.debt-grid{grid-template-columns:1fr}.stat{padding:14px}.stat .value{font-size:clamp(21px,7vw,25px);overflow-wrap:anywhere}.section{padding:13px;margin-top:11px;border-radius:14px}.section-title{align-items:flex-start;flex-wrap:wrap}.section-title h2{font-size:18px}.quick{min-height:78px;padding:14px}.quick strong{font-size:16px}.plan-item{grid-template-columns:72px minmax(0,1fr);gap:7px}.plan-item .soft-btn{grid-column:1/-1}
  .calendar-scroll{margin:0 -13px;width:calc(100% + 26px);padding:0 13px}.calendar{min-width:560px;font-size:10px}.day{min-height:92px;padding:4px}.day-num{font-size:11px}.cal-event,.cal-note,.cal-schedule{font-size:8.5px;padding:3px 4px}.calendar-tools{width:100%;justify-content:space-between}.calendar-title{min-width:90px}.calendar-click-hint{font-size:10px}.forecast-head{align-items:flex-start;flex-direction:column}.forecast-head .soft-btn{width:100%}.forecast-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.forecast-card{padding:9px}.forecast-card .amount{font-size:15px}.forecast-card.total{grid-column:1/-1}
  .modal-back{align-items:end;padding:0}.modal{width:100%;max-height:90vh;overflow-y:auto;border-radius:20px 20px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom))}.form-actions{position:sticky;bottom:0;background:#fff;padding-top:8px}.form-actions button{min-height:42px}
@@ -111,6 +111,9 @@ table{width:100%;border-collapse:collapse}th,td{padding:11px 9px;border-bottom:1
  .mobile-nav{overflow:hidden}.mobile-nav button{min-width:0;font-size:10px;line-height:1.15;padding:8px 1px;white-space:normal;word-break:keep-all}
 }
 @media(max-width:390px){.top-actions .ghost{padding:7px 6px;font-size:10px}.brand span:last-child{font-size:12px}.week-info strong{font-size:11px}.week-switcher .week-now{padding:0 5px}.layout{padding-left:8px;padding-right:8px}.section{padding:11px}.calendar-scroll{margin-left:-11px;margin-right:-11px;width:calc(100% + 22px);padding-left:11px;padding-right:11px}}
+
+.history-filter{display:flex;flex-direction:column;gap:10px}.history-filter-row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.history-filter-label{font-size:12px;color:var(--muted);font-weight:800}.filter-group{display:flex;gap:6px;flex-wrap:wrap}.filter-btn{border:1px solid var(--line);background:#fff;color:#4b5563;border-radius:10px;padding:8px 11px;font-size:12px;font-weight:850;cursor:pointer}.filter-btn.active{background:var(--dark);border-color:var(--dark);color:#fff}.history-date-range{display:grid;grid-template-columns:repeat(2,minmax(150px,1fr));gap:8px;width:min(430px,100%)}.history-date-range .field{margin:0}.history-date-range input{padding:9px 10px}.history-result-line{font-size:12px;color:var(--muted);font-weight:700}.history-result-line b{color:var(--text)}
+@media(max-width:650px){.history-filter-row{align-items:flex-start;flex-direction:column}.filter-group{width:100%}.filter-btn{flex:1 1 auto;min-height:38px}.history-date-range{grid-template-columns:1fr;width:100%}}
 .approve-btn:disabled{background:#d1d5db!important;color:#6b7280!important;cursor:not-allowed}.fund-warning{margin-top:8px;padding:8px 10px;border-radius:9px;background:#fff1f2;color:#b42318;font-size:12px;font-weight:800}.budget-gap{display:block;margin-top:5px;color:#b42318;font-size:11px;font-weight:850;line-height:1.4}.budget-ok{display:block;margin-top:5px;color:#176b42;font-size:11px;font-weight:800}.budget-reconcile{margin-top:8px;display:flex;gap:7px;flex-wrap:wrap}.budget-reconcile .soft-btn{font-size:11px;padding:7px 9px}</style>
 </head>
 <body>
@@ -133,6 +136,9 @@ table{width:100%;border-collapse:collapse}th,td{padding:11px 9px;border-bottom:1
       <button class="team-card" data-team="엘리븐" style="--team-color:var(--eleven)"><strong>엘리븐</strong><span>예산 · 매출 · 지출 · 미리 신고</span></button>
       <button class="team-card" data-team="로아미" style="--team-color:var(--loami)"><strong>로아미</strong><span>예산 · 매출 · 지출 · 미리 신고</span></button>
     </div>
+    <button class="mes-entry" type="button" onclick="location.href='/mes'">
+      <div><strong>허슬 MES</strong><span>봉제 생산계획 · 작업자 · 설비 · 간트 · 손익 관리</span></div><b>생산관리 열기 →</b>
+    </button>
   </div>
 </section>
 
@@ -214,6 +220,10 @@ let selectedCalendarDate=todayISO();
 let calendarClickTimer=null;
 let calendarSuppressClickUntil=0;
 let selectedPlanId=null;
+let ledgerRangeMode="month";
+let ledgerTypeFilter="all";
+let ledgerCustomStart=todayISO().slice(0,8)+"01";
+let ledgerCustomEnd=todayISO();
 let saveTimer=null;
 let saveInFlight=false;
 let saveQueued=false;
@@ -860,15 +870,37 @@ window.saveRecurringEdit=function(id){
  saveState();closeModal();showToast("고정지출이 수정되었습니다.",`${name} · 매월 ${day}일`);renderApp();
 }
 
+function monthEndISO(dateStr=todayISO()){
+ const d=new Date(dateStr.slice(0,7)+"-01T00:00:00");d.setMonth(d.getMonth()+1);d.setDate(0);return iso(d);
+}
+function ledgerRangeDates(){
+ if(ledgerRangeMode==="week")return {start:selectedWeekStart,end:weekEndISO(selectedWeekStart),label:`${weekLabelInfo(selectedWeekStart).label} · ${weekLabelInfo(selectedWeekStart).range}`};
+ if(ledgerRangeMode==="custom")return {start:ledgerCustomStart||todayISO(),end:ledgerCustomEnd||todayISO(),label:`${ledgerCustomStart||"-"} ~ ${ledgerCustomEnd||"-"}`};
+ const start=todayISO().slice(0,8)+"01",end=monthEndISO(todayISO());return {start,end,label:`${Number(todayISO().slice(5,7))}월 전체`};
+}
+function ledgerFilterControls(){
+ const r=ledgerRangeDates();
+ return `<section class="section"><div class="history-filter"><div class="history-filter-row"><div><div class="history-filter-label">조회 기간</div><div class="filter-group" style="margin-top:6px"><button class="filter-btn ${ledgerRangeMode==="week"?"active":""}" onclick="setLedgerRange('week')">선택 주</button><button class="filter-btn ${ledgerRangeMode==="month"?"active":""}" onclick="setLedgerRange('month')">이번 달</button><button class="filter-btn ${ledgerRangeMode==="custom"?"active":""}" onclick="setLedgerRange('custom')">기간 선택</button></div></div><div><div class="history-filter-label">내역 구분</div><div class="filter-group" style="margin-top:6px"><button class="filter-btn ${ledgerTypeFilter==="all"?"active":""}" onclick="setLedgerType('all')">전체</button><button class="filter-btn ${ledgerTypeFilter==="sale"?"active":""}" onclick="setLedgerType('sale')">매출</button><button class="filter-btn ${ledgerTypeFilter==="expense"?"active":""}" onclick="setLedgerType('expense')">지출</button></div></div></div>${ledgerRangeMode==="custom"?`<div class="history-filter-row"><div class="history-date-range"><div class="field"><label>시작일</label><input type="date" value="${ledgerCustomStart}" onchange="setLedgerCustom('start',this.value)"></div><div class="field"><label>종료일</label><input type="date" value="${ledgerCustomEnd}" onchange="setLedgerCustom('end',this.value)"></div></div></div>`:""}<div class="history-result-line">현재 조회: <b>${r.label}</b> · ${ledgerTypeFilter==="sale"?"매출만":ledgerTypeFilter==="expense"?"지출만":"매출 + 지출"}</div></div></section>`;
+}
+window.setLedgerRange=function(mode){ledgerRangeMode=mode;if(mode==="custom"&&(!ledgerCustomStart||!ledgerCustomEnd)){ledgerCustomStart=todayISO().slice(0,8)+"01";ledgerCustomEnd=todayISO()}renderApp()}
+window.setLedgerType=function(type){ledgerTypeFilter=type;renderApp()}
+window.setLedgerCustom=function(which,value){if(!value)return;if(which==="start")ledgerCustomStart=value;else ledgerCustomEnd=value;if(ledgerCustomStart>ledgerCustomEnd){if(which==="start")ledgerCustomEnd=value;else ledgerCustomStart=value}ledgerRangeMode="custom";renderApp()}
+function filterLedgerItems(items){const r=ledgerRangeDates();return items.filter(x=>x.date>=r.start&&x.date<=r.end&&(ledgerTypeFilter==="all"||x.kind===ledgerTypeFilter)).sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id)}
+function ledgerSummary(items){
+ const completedSales=items.filter(x=>x.kind==="sale"&&x.status==="입금완료").reduce((a,x)=>a+(Number(x.amount)||0),0),expenses=items.filter(x=>x.kind==="expense").reduce((a,x)=>a+(Number(x.amount)||0),0),net=completedSales-expenses;
+ return `<div class="cards">${stat("조회기간 입금완료 매출",won(completedSales),"실제 입금완료 기준")}${stat("조회기간 지출",won(expenses),"등록된 실제 지출")}${stat("매출 - 지출",`${net<0?"-":""}${won(Math.abs(net))}`,`${items.length}건 조회`)}</div>`;
+}
+
 function historyPage(team){
- const items=[
+ const allItems=[
   ...state.sales.filter(x=>x.team===team).map(x=>({id:x.id,kind:"sale",date:x.receivedAt||x.date,type:"매출",name:x.name,amount:x.amount,sign:"+",cls:"money-income",status:x.status})),
   ...state.expenses.filter(x=>x.team===team).map(x=>({id:x.id,kind:"expense",date:x.date,type:"지출",name:x.name,amount:x.amount,sign:"-",cls:"money-expense",status:"완료"}))
- ].sort((a,b)=>b.date.localeCompare(a.date));
- return `<div class="page-head"><div><h1>내역 보기</h1><div class="sub">${team}에서 등록한 실제 매출·지출을 수정하거나 삭제할 수 있습니다.</div></div></div>
- <section class="section">${items.length?`<table><thead><tr><th>날짜</th><th>구분</th><th>내용</th><th>상태</th><th>금액</th><th>관리</th></tr></thead><tbody>
- ${items.map(x=>`<tr><td>${x.date}</td><td>${x.type}</td><td>${x.name}</td><td>${x.status}</td><td class="${x.cls}">${x.sign}${won(x.amount)}</td><td><div style="display:flex;gap:6px"><button class="soft-btn" onclick="${x.kind==="sale"?`editSale(${x.id})`:`editExpense(${x.id})`}">수정</button><button class="soft-btn" onclick="${x.kind==="sale"?`deleteSale(${x.id})`:`deleteExpense(${x.id})`}">삭제</button></div></td></tr>`).join("")}
- </tbody></table>`:`<div class="empty">등록된 매출·지출이 없습니다.</div>`}</section>`;
+ ];
+ const items=filterLedgerItems(allItems),r=ledgerRangeDates();
+ return `<div class="page-head"><div><h1>내역 보기</h1><div class="sub">기간과 매출·지출 구분을 선택해서 ${team} 내역을 확인합니다.</div></div></div>${ledgerFilterControls()}${ledgerSummary(items)}
+ <section class="section"><div class="section-title"><h2>조회 내역</h2><div class="hint">${r.start} ~ ${r.end} · ${items.length}건</div></div>${items.length?`<table><thead><tr><th>날짜</th><th>구분</th><th>내용</th><th>상태</th><th>금액</th><th>관리</th></tr></thead><tbody>
+ ${items.map(x=>`<tr><td>${x.date}</td><td><span class="pill ${x.kind==="sale"?"ok":"danger"}">${x.type}</span></td><td>${x.name}</td><td>${x.status}</td><td class="${x.cls}">${x.sign}${won(x.amount)}</td><td><div style="display:flex;gap:6px"><button class="soft-btn" onclick="${x.kind==="sale"?`editSale(${x.id})`:`editExpense(${x.id})`}">수정</button><button class="soft-btn" onclick="${x.kind==="sale"?`deleteSale(${x.id})`:`deleteExpense(${x.id})`}">삭제</button></div></td></tr>`).join("")}
+ </tbody></table>`:`<div class="empty">선택한 기간과 구분에 해당하는 내역이 없습니다.</div>`}</section>`;
 }
 
 function centralHome(){
@@ -1069,11 +1101,12 @@ function monthlyCentral(){
  <section class="section"><div class="section-title"><h2>이번 달 총 필요자금 추정</h2></div><div style="font-size:35px;font-weight:900">${won(teamBudget+fixed+debt)}</div></section>`;
 }
 function centralLedger(){
- const arr=[
-  ...state.sales.map(x=>({id:x.id,date:x.receivedAt||x.date,team:x.team,type:"매출",name:x.name,amount:x.amount,cls:"money-income",sign:"+",kind:"sale"})),
-  ...state.expenses.map(x=>({id:x.id,date:x.date,team:x.team,type:"지출",name:x.name,amount:x.amount,cls:"money-expense",sign:"-",kind:"expense"}))
- ].sort((a,b)=>b.date.localeCompare(a.date));
- return `<div class="page-head"><div><h1>매출·지출</h1><div class="sub">전체 실제 등록 내역입니다. 강신나 자체 지출은 여기서 수정·삭제할 수 있습니다.</div></div></div><section class="section"><table><thead><tr><th>날짜</th><th>팀</th><th>구분</th><th>내용</th><th>금액</th><th>관리</th></tr></thead><tbody>${arr.map(x=>`<tr><td>${x.date}</td><td><b style="color:${TEAM_META[x.team].color}">${x.team}</b></td><td>${x.type}</td><td>${x.name}</td><td class="${x.cls}">${x.sign}${won(x.amount)}</td><td>${x.team==="강신나"&&x.kind==="expense"?`<div style="display:flex;gap:6px"><button class="soft-btn" onclick="editExpense(${x.id})">수정</button><button class="soft-btn" onclick="deleteExpense(${x.id})">삭제</button></div>`:"-"}</td></tr>`).join("")}</tbody></table></section>`;
+ const allItems=[
+  ...state.sales.map(x=>({id:x.id,date:x.receivedAt||x.date,team:x.team,type:"매출",name:x.name,amount:x.amount,cls:"money-income",sign:"+",kind:"sale",status:x.status})),
+  ...state.expenses.map(x=>({id:x.id,date:x.date,team:x.team,type:"지출",name:x.name,amount:x.amount,cls:"money-expense",sign:"-",kind:"expense",status:"완료"}))
+ ];
+ const arr=filterLedgerItems(allItems),r=ledgerRangeDates();
+ return `<div class="page-head"><div><h1>매출·지출</h1><div class="sub">기간과 구분을 선택해서 전체 팀의 실제 등록 내역을 확인합니다.</div></div></div>${ledgerFilterControls()}${ledgerSummary(arr)}<section class="section"><div class="section-title"><h2>조회 내역</h2><div class="hint">${r.start} ~ ${r.end} · ${arr.length}건</div></div>${arr.length?`<table><thead><tr><th>날짜</th><th>팀</th><th>구분</th><th>내용</th><th>상태</th><th>금액</th><th>관리</th></tr></thead><tbody>${arr.map(x=>`<tr><td>${x.date}</td><td><b style="color:${TEAM_META[x.team].color}">${x.team}</b></td><td><span class="pill ${x.kind==="sale"?"ok":"danger"}">${x.type}</span></td><td>${x.name}</td><td>${x.status}</td><td class="${x.cls}">${x.sign}${won(x.amount)}</td><td>${x.team==="강신나"&&x.kind==="expense"?`<div style="display:flex;gap:6px"><button class="soft-btn" onclick="editExpense(${x.id})">수정</button><button class="soft-btn" onclick="deleteExpense(${x.id})">삭제</button></div>`:"-"}</td></tr>`).join("")}</tbody></table>`:`<div class="empty">선택한 기간과 구분에 해당하는 내역이 없습니다.</div>`}</section>`;
 }
 
 function accountsPage(){
